@@ -284,3 +284,12 @@ Trend: 25 → 14 → 10 → 10 → 9 findings, each round narrower (round 5 is e
 - Android debug APK: all native libs pass the 16 KB ELF + zip alignment check.
 - Found and fixed during verification: iOS Simulator Metal emulation traps on whisper buffers (GPU disabled on Simulator only); desktop model-card action row overflow; Russian title wrapping on phones.
 - Not done: Windows and Linux builds (need those hosts); physical devices; release-mode builds.
+
+## Live music test (2026-10-20)
+Public-domain 1908 recording "Take Me Out to the Ball Game" (Wikimedia Commons, 2:09 Ogg Vorbis) added through each app's real file picker:
+- macOS **release** (⌘O → Open panel), iOS Simulator debug (Files → On My iPhone), Android **release** (system picker, content URI) — all extract English text with the Base model, 0 "[Music]" markers.
+- Fixed during the test:
+  - Songs came out as only "[Music]" with Base (all platforms): enable whisper `suppress_nst` (0/13 → 8/13 chorus keywords on the A/B).
+  - Android release crashed at startup (`NoSuchMethodError`): R8 stripped/renamed members that the JNI-based `shared_preferences_android` calls by name → keep rules in `android/app/proguard-rules.pro`.
+  - Fatal-error screen now shows the plugin error code/message so release failures are diagnosable.
+  - Added ⌘O / Ctrl+O "Add files" shortcut on desktop.

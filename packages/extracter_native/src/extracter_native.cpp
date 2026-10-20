@@ -404,6 +404,9 @@ class Transcriber {
     wp.language = language_.c_str();
     wp.detect_language = false;
     wp.no_context = false;  // whisper keeps the previous chunk's text as prompt
+    // Never emit "[Music]"-style markers instead of words: on songs Base would
+    // otherwise label every window as music and drop the lyrics entirely.
+    wp.suppress_nst = true;
     wp.print_progress = false;
     wp.print_realtime = false;
     wp.print_timestamps = false;

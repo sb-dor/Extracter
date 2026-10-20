@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:extracter/src/common/dependencies/dependencies.dart';
 import 'package:extracter/src/common/localization/generated/l10n.dart';
@@ -26,6 +28,7 @@ import 'package:extracter/src/feature/whisper_models/data/whisper_models_reposit
 import 'package:extracter/src/feature/whisper_models/widgets/whisper_model_labels.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:l/l.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -224,7 +227,13 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
           dragging.value = false;
           addDropped(details.files);
         },
-        child: const TranscriptionQueueDesktopWidget(),
+        // ⌘O (macOS) / Ctrl+O (Windows, Linux) opens the file picker, as in other desktop apps.
+        child: CallbackShortcuts(
+          bindings: {
+            SingleActivator(LogicalKeyboardKey.keyO, meta: Platform.isMacOS, control: !Platform.isMacOS): pickFiles,
+          },
+          child: const Focus(autofocus: true, child: TranscriptionQueueDesktopWidget()),
+        ),
       ),
     ),
   );

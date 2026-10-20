@@ -85,8 +85,8 @@ Android release builds: check 16 KB page alignment with
 
 | Platform | Status |
 |---|---|
-| macOS | Built; unit, native smoke (27 checks) and integration tests pass |
-| iOS Simulator | Built; integration tests pass (CPU — Metal is disabled on the Simulator) |
-| Android emulator (arm64) | Built; integration tests pass; 16 KB alignment check passes |
+| macOS | Debug + **release** built; unit, native smoke (27 checks) and integration tests pass; live UI test (⌘O → song) extracts text |
+| iOS Simulator | Debug built; integration tests pass; live UI test (Files picker → song) extracts text (CPU — Metal is off on the Simulator) |
+| Android emulator (arm64) | Debug + **release** built; integration tests pass; live UI test (system picker → song) extracts text; 16 KB alignment passes |
 | Physical iPhone / Android device | Not tried yet |
 | Windows, Linux | CMake + scripts written, **not yet built** (need those hosts) |
