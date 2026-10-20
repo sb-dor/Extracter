@@ -1,0 +1,8 @@
+extracter_native — glue code (src/, lib/, scripts/) for the Extracter app.
+
+Third-party components, each under its own licence (see ../../THIRD_PARTY.md):
+- whisper.cpp / ggml — MIT License — third_party/whisper.cpp/LICENSE
+- FFmpeg 8.1.3 — GNU Lesser General Public License v2.1 or later. FFmpeg is
+  built decode-only from the unmodified release tarball by
+  scripts/build_ffmpeg.sh and is always linked dynamically.
+- Whisper model files (downloaded at runtime) — MIT License.

@@ -1,0 +1,22 @@
+PODS:
+  - extracter_native (1.0.0):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - extracter_native (from `.symlinks/plugins/extracter_native/ios`)
+  - Flutter (from `Flutter`)
+
+EXTERNAL SOURCES:
+  extracter_native:
+    :path: ".symlinks/plugins/extracter_native/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  extracter_native: 05c429b86184a8a867cd3b1e72315434820de0fc
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
+
+PODFILE CHECKSUM: ce2bd07e48ac0db9731a3eaa78d3ebaf7cbf8d25
+
+COCOAPODS: 1.17.0

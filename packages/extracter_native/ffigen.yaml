@@ -1,0 +1,27 @@
+# Run with `dart run ffigen --config ffigen.yaml`.
+name: ExtracterNativeBindings
+description: |
+  Bindings for `src/extracter_native.h`.
+
+  Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
+output: 'lib/src/extracter_native_bindings_generated.dart'
+headers:
+  entry-points:
+    - 'src/extracter_native.h'
+  include-directives:
+    - 'src/extracter_native.h'
+functions:
+  include:
+    - 'ex_.*'
+structs:
+  include:
+    - 'ex_event'
+enums:
+  include:
+    - 'ex_.*'
+typedefs:
+  include:
+    - 'ex_event_cb'
+comments:
+  style: any
+  length: full

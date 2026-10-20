@@ -1,0 +1,387 @@
+{
+  "@@locale": "en",
+  "appTitle": "Extracter",
+  "about": "About",
+  "aboutAndLicenses": "About & licences",
+  "aboutPrivacy": "Audio and video are transcribed on this device. Nothing is uploaded.",
+  "tabTranscribe": "Transcribe",
+  "tabHistory": "History",
+  "tabModels": "Models",
+  "ok": "OK",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "open": "Open",
+  "notNow": "Not now",
+  "tryAgain": "Try again",
+  "fatalErrorTitle": "Extracter couldn't start",
+  "fatalErrorMessage": "The transcription engine failed to load ({error}). Reinstall the app and try again.",
+  "@fatalErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cpuUnsupportedTitle": "This processor isn't supported",
+  "cpuUnsupportedMessage": "Extracter needs a processor with AVX2 support (Intel 2013 or newer, AMD Ryzen or newer). Your history and exports are still available.",
+  "transcribeSubtitle": "Audio and video never leave this device.",
+  "addFiles": "Add files",
+  "browseFiles": "Browse files",
+  "dropFilesHere": "Drop audio or video files here",
+  "supportedFormats": "MP3 · M4A · WAV · FLAC · OGG · OPUS · MP4 · MOV · MKV · WEBM · AVI and more",
+  "model": "Model",
+  "spokenLanguage": "Spoken language",
+  "languageAuto": "Auto-detect",
+  "languageDetected": "Detected: {language}",
+  "@languageDetected": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "translateToEnglish": "Translate to English",
+  "translateShort": "Translate",
+  "translateUnsupported": "This model can't translate. Pick another model to translate to English.",
+  "translatedFrom": "{language} → English",
+  "@translatedFrom": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsApplyHint": "Applies to files you add next. Files already queued keep their settings.",
+  "modelOptionInstalled": "{name} · {size} · installed",
+  "@modelOptionInstalled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "modelOptionMissing": "{name} · {size} · not downloaded",
+  "@modelOptionMissing": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "modelChip": "{name} model",
+  "@modelChip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "queue": "Queue",
+  "clearFinished": "Clear finished",
+  "queueEmptyTitle": "No files yet",
+  "queueEmptyMessage": "Add audio or video files to transcribe them on this device.",
+  "upNext": "{count, plural, =1{Up next · 1} other{Up next · {count}}}",
+  "@upNext": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "finished": "Finished",
+  "waiting": "Waiting",
+  "transcribing": "Transcribing…",
+  "transcribingPercent": "Transcribing {percent}%",
+  "@transcribingPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "transcribedOf": "{done} of {total} transcribed",
+  "@transcribedOf": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "minutesLeft": "{minutes, plural, =1{About 1 min left} other{About {minutes} min left}}",
+  "@minutesLeft": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "lessThanMinuteLeft": "Less than a minute left",
+  "cancelling": "Cancelling…",
+  "cancelled": "Cancelled",
+  "saved": "Saved",
+  "notSaved": "Not saved",
+  "failed": "Failed",
+  "removeFromQueue": "Remove from queue",
+  "removeNamedFromQueue": "Remove {name} from queue",
+  "@removeNamedFromQueue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelTranscription": "Cancel transcription",
+  "nowTranscribing": "Now transcribing",
+  "unsavedExplanation": "Transcribed, but it couldn't be saved to History.",
+  "retrySave": "Retry save",
+  "exportEllipsis": "Export…",
+  "keepAppOpen": "Keep Extracter open while it works. If you switch apps, unfinished files are stopped.",
+  "liveTranscript": "Live transcript",
+  "liveTranscriptEmpty": "Text appears here while a file is being transcribed.",
+  "listening": "Listening…",
+  "segmentsSoFar": "{count, plural, =1{1 segment so far} other{{count} segments so far}}",
+  "@segmentsSoFar": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "screenStaysAwake": "The screen stays awake until the queue finishes.",
+  "addRejectedOne": "Couldn't add {name}: {reason}",
+  "@addRejectedOne": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "addRejectedMany": "{count, plural, =1{Couldn't add 1 file: {reason}} other{Couldn't add {count} files: {reason}}}",
+  "@addRejectedMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "failureCancelled": "Cancelled.",
+  "failureOpen": "This file couldn't be opened.",
+  "failureDecode": "This file's audio couldn't be decoded.",
+  "failureNoAudio": "This file has no audio track.",
+  "failureModel": "The model file couldn't be loaded. Download it again on the Models screen.",
+  "failureModelMissing": "The selected model isn't downloaded.",
+  "failureOutOfMemory": "Not enough memory. Try a smaller model.",
+  "failureTimeout": "The file took too long to open.",
+  "failureLowStorage": "The device storage is almost full.",
+  "failureUnreadable": "This file couldn't be read.",
+  "failureSave": "Couldn't save to History: the storage may be full.",
+  "failureInternal": "Something went wrong while transcribing.",
+  "modelMissingTitle": "Download the {name} model first",
+  "@modelMissingTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modelMissingMessage": "Extracter needs a speech model to transcribe. {name} is {size} and only downloads once — after that everything runs offline.",
+  "@modelMissingMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadSize": "Download {size}",
+  "@downloadSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "modelsSubtitle": "Download a model once, then transcribe offline. Larger models are more accurate but slower and need more memory.",
+  "modelsFootnote": "Models come from the whisper.cpp project on Hugging Face (MIT licence) and are checked with SHA-256 after download. A model that queued files still need can't be deleted until they finish.",
+  "modelsMobileFootnote": "Downloads use Wi-Fi or mobile data once. After that, transcription works fully offline.",
+  "modelsLoadFailed": "Couldn't load the models.",
+  "deviceMemory": "{size} memory",
+  "@deviceMemory": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceFree": "{size} free",
+  "@deviceFree": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "modelTiny": "Tiny",
+  "modelBase": "Base",
+  "modelSmall": "Small",
+  "modelMedium": "Medium",
+  "modelLargeTurbo": "Large v3 Turbo",
+  "modelTinyDescription": "Fastest. Good for clear speech and quick drafts.",
+  "modelBaseDescription": "Recommended. A good balance of speed and accuracy.",
+  "modelSmallDescription": "Noticeably better with accents and background noise.",
+  "modelMediumDescription": "High accuracy for long recordings.",
+  "modelLargeTurboDescription": "Best accuracy, close to Medium speed.",
+  "modelLanguages": "99 languages",
+  "modelTranslates": "Translate to English",
+  "modelNoTranslation": "No translation",
+  "modelAccuracy": "Accuracy",
+  "modelAccuracyValue": "Accuracy {level} of 5",
+  "@modelAccuracyValue": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "modelSelected": "In use",
+  "modelInstalled": "Installed",
+  "modelNotDownloaded": "Not downloaded",
+  "modelUse": "Use",
+  "modelDownload": "Download",
+  "modelDownloading": "Downloading {percent}%",
+  "@modelDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "modelDownloadedOf": "{done} of {total} · resumes if interrupted",
+  "@modelDownloadedOf": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "modelNeedsMemory": "Needs {gb} GB memory",
+  "@modelNeedsMemory": {
+    "placeholders": {
+      "gb": {
+        "type": "int"
+      }
+    }
+  },
+  "modelNeedsMemoryNoTranslation": "Needs {gb} GB memory · no translation",
+  "@modelNeedsMemoryNoTranslation": {
+    "placeholders": {
+      "gb": {
+        "type": "int"
+      }
+    }
+  },
+  "modelInUseByQueue": "{count, plural, =1{In use by 1 queued file} other{In use by {count} queued files}}",
+  "@modelInUseByQueue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modelDeleteTitle": "Delete the {name} model?",
+  "@modelDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modelDeleteMessage": "This frees {size}. You can download it again later.",
+  "@modelDeleteMessage": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "modelDeleteInUse": "This model is needed by files in the queue and can't be deleted yet.",
+  "modelDeleteFailed": "Couldn't delete the model.",
+  "downloadErrorNetwork": "The download stopped. Check your connection and try again — it will resume.",
+  "downloadErrorStorageFull": "Not enough free space for this model.",
+  "downloadErrorCorrupt": "The downloaded file didn't pass verification and was removed. Try again.",
+  "downloadErrorStorage": "The model couldn't be written to storage.",
+  "downloadErrorBusy": "This model is already being downloaded or deleted.",
+  "searchHint": "Search file names and text",
+  "searchTranscripts": "Search transcripts",
+  "historyEmptyTitle": "No transcripts yet",
+  "historyEmptyMessage": "Finished transcriptions are saved here.",
+  "searchEmptyTitle": "Nothing matches your search",
+  "historyLoadFailed": "Couldn't load History.",
+  "loadingMore": "Loading more…",
+  "today": "Today",
+  "earlier": "Earlier",
+  "todayAt": "Today, {time}",
+  "@todayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "yesterdayAt": "Yesterday, {time}",
+  "@yesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "selectTranscript": "Select a transcript to read it",
+  "transcriptGone": "This transcript was deleted.",
+  "transcriptLoadFailed": "Couldn't open this transcript.",
+  "noSpeechFound": "No speech was found in this file.",
+  "copyText": "Copy text",
+  "copied": "Copied to clipboard",
+  "saveAs": "Save as",
+  "exportAs": "Export as",
+  "formatTxt": "Plain text (.txt)",
+  "formatSrt": "SRT subtitles (.srt)",
+  "formatVtt": "WebVTT subtitles (.vtt)",
+  "formatShortTxt": "TXT",
+  "formatShortSrt": "SRT subtitles",
+  "formatShortVtt": "VTT",
+  "shareFile": "Share .{extension}",
+  "@shareFile": {
+    "placeholders": {
+      "extension": {
+        "type": "String"
+      }
+    }
+  },
+  "exportSaved": "Saved",
+  "exportFailed": "Couldn't export the transcript.",
+  "deleteTranscript": "Delete transcript",
+  "deleteTranscriptTitle": "Delete this transcript?",
+  "deleteTranscriptMessage": "The transcript and all its segments will be removed from History. The original file isn't touched.",
+  "deleteFailed": "Couldn't delete the transcript."
+}

@@ -1,0 +1,22 @@
+PODS:
+  - extracter_native (1.0.0):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+
+DEPENDENCIES:
+  - extracter_native (from `Flutter/ephemeral/.symlinks/plugins/extracter_native/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+
+EXTERNAL SOURCES:
+  extracter_native:
+    :path: Flutter/ephemeral/.symlinks/plugins/extracter_native/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+
+SPEC CHECKSUMS:
+  extracter_native: 5902640fd0c6fe20893aa34a35389b62053e9d30
+  FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
+
+PODFILE CHECKSUM: c4dda72bffbbf606876d102a78d4d3a0e4c9b017
+
+COCOAPODS: 1.17.0
