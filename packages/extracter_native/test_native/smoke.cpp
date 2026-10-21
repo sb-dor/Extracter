@@ -41,6 +41,11 @@ void on_event(ex_event* ev) {
   std::fflush(stdout);
   ex_event_free(ev);
 }
+
+bool on_post(int64_t /*port*/, ex_cobject* message) {
+  on_event(reinterpret_cast<ex_event*>(static_cast<intptr_t>(message->value.as_int64)));
+  return true;
+}
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -50,7 +55,7 @@ int main(int argc, char** argv) {
   }
   std::printf("INFO %s cpu_supported=%d ram=%lld free=%lld\n", ex_build_info(), ex_cpu_supported(),
               static_cast<long long>(ex_total_ram_bytes()), static_cast<long long>(ex_free_disk_bytes(".")));
-  ex_init(&on_event);
+  ex_init(&on_post, 1);
   const char* language = argc > 3 ? argv[3] : "auto";
   const int translate = argc > 4 ? std::atoi(argv[4]) : 0;
   const int cancel_after = argc > 5 ? std::atoi(argv[5]) : -1;

@@ -42,15 +42,19 @@ class ExtracterNativeBindings {
   late final _ex_build_info = _ex_build_infoPtr
       .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
-  /// Registers the global callback and installs silent native log handlers.
-  /// Returns 0, or -1 if called again with a different callback.
-  int ex_init(ex_event_cb cb) {
-    return _ex_init(cb);
+  /// Sends events of jobs started from now on to `port` and installs silent
+  /// native log handlers. Call once per isolate: a new port means the previous
+  /// isolate is gone, so its still-running jobs are cancelled. Returns 0, or -1
+  /// if `post` is null.
+  int ex_init(ex_post_fn post, int port) {
+    return _ex_init(post, port);
   }
 
   late final _ex_initPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ex_event_cb)>>('ex_init');
-  late final _ex_init = _ex_initPtr.asFunction<int Function(ex_event_cb)>();
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ex_post_fn, ffi.Int64)>>(
+        'ex_init',
+      );
+  late final _ex_init = _ex_initPtr.asFunction<int Function(ex_post_fn, int)>();
 
   /// Starts a job. language: "auto" or an ISO-639-1 code. Returns a job id > 0,
   /// or -ex_status when the job could not be started (no DONE follows then).
@@ -257,9 +261,29 @@ final class ex_event extends ffi.Struct {
   external int text_len;
 }
 
-typedef ex_event_cb =
+final class UnnamedUnion extends ffi.Union {
+  @ffi.Int64()
+  external int as_int64;
+
+  /// Dart_CObject's union is at most 40 bytes
+  @ffi.Array.multi([48])
+  external ffi.Array<ffi.Uint8> reserved;
+}
+
+/// Layout-compatible prefix of Dart_CObject; native only sends type kInt64 (3).
+final class ex_cobject extends ffi.Struct {
+  @ffi.Int32()
+  external int type;
+
+  external UnnamedUnion value;
+}
+
+/// Signature of Dart_PostCObject: false when the port is closed.
+typedef ex_post_fn =
     ffi.Pointer<
-      ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ex_event> ev)>
+      ffi.NativeFunction<
+        ffi.Bool Function(ffi.Int64 port, ffi.Pointer<ex_cobject> message)
+      >
     >;
 
-const int EX_API_VERSION = 1;
+const int EX_API_VERSION = 2;

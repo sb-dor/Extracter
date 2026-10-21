@@ -77,6 +77,7 @@ int64_t elapsed_ms(Clock::time_point since) {
 
 struct Job {
   int64_t id = 0;
+  int64_t port = 0;  // Dart port of the isolate that started the job
   std::string media_path;
   std::string model_path;
   std::string language;
@@ -93,7 +94,8 @@ struct Job {
 
 std::mutex g_mutex;
 std::map<int64_t, std::shared_ptr<Job>> g_jobs;
-std::atomic<ex_event_cb> g_cb{nullptr};
+std::atomic<ex_post_fn> g_post{nullptr};
+std::atomic<int64_t> g_port{0};
 std::atomic<int64_t> g_next_id{1};
 thread_local Job* t_job = nullptr;
 
@@ -120,14 +122,17 @@ bool set_text(ex_event* ev, const std::string& text) {
   return true;
 }
 
-void post(ex_event* ev) {
+constexpr int32_t kDartCObjectInt64 = 3;  // Dart_CObject_kInt64
+
+// The receiver owns the event once the post succeeds; a closed port (dead
+// isolate) leaves it with us.
+void post(const Job& job, ex_event* ev) {
   if (ev == nullptr) return;
-  ex_event_cb cb = g_cb.load();
-  if (cb != nullptr) {
-    cb(ev);
-  } else {
-    ex_event_free(ev);
-  }
+  ex_post_fn fn = g_post.load();
+  ex_cobject message{};
+  message.type = kDartCObjectInt64;
+  message.value.as_int64 = static_cast<int64_t>(reinterpret_cast<intptr_t>(ev));
+  if (fn == nullptr || !fn(job.port, &message)) ex_event_free(ev);
 }
 
 void post_progress(const Job& job, int32_t permille, int64_t duration_ms) {
@@ -135,7 +140,7 @@ void post_progress(const Job& job, int32_t permille, int64_t duration_ms) {
   if (ev == nullptr) return;
   ev->progress_permille = permille;
   ev->duration_ms = duration_ms;
-  post(ev);
+  post(job, ev);
 }
 
 void post_segment(const Job& job, int64_t t0_ms, int64_t t1_ms, const std::string& text) {
@@ -147,7 +152,7 @@ void post_segment(const Job& job, int64_t t0_ms, int64_t t1_ms, const std::strin
     ex_event_free(ev);
     return;
   }
-  post(ev);
+  post(job, ev);
 }
 
 // LOG payloads are built only from numbers and FFmpeg component names, never
@@ -159,7 +164,7 @@ void post_log(const Job& job, const std::string& json) {
     ex_event_free(ev);
     return;
   }
-  post(ev);
+  post(job, ev);
 }
 
 std::string json_name(const char* name) {
@@ -697,7 +702,7 @@ void worker(std::shared_ptr<Job> job) {
     ev->duration_ms = r.duration_ms;
     ev->progress_permille = r.status == EX_OK ? 1000 : -1;
     set_text(ev, r.language);
-    post(ev);
+    post(*job, ev);
   }
   t_job = nullptr;
   job->finished = true;
@@ -751,17 +756,25 @@ EX_API const char* ex_build_info(void) {
   return info.c_str();
 }
 
-EX_API int32_t ex_init(ex_event_cb cb) {
-  if (cb == nullptr) return -1;
-  ex_event_cb expected = nullptr;
-  if (!g_cb.compare_exchange_strong(expected, cb) && expected != cb) return -1;
+EX_API int32_t ex_init(ex_post_fn post, int64_t port) {
+  if (post == nullptr) return -1;
+  {
+    std::lock_guard<std::mutex> lock(g_mutex);
+    g_post = post;
+    g_port = port;
+    // Jobs of an earlier isolate (closed activity, hot restart) have nobody
+    // left to report to.
+    for (auto& entry : g_jobs) {
+      if (entry.second->port != port) entry.second->cancel = true;
+    }
+  }
   ensure_silent_logging();
   return 0;
 }
 
 EX_API int64_t ex_job_start(const char* media_path_utf8, const char* model_path_utf8, const char* language,
                             int32_t translate, int32_t n_threads) {
-  if (g_cb.load() == nullptr) return -EX_ERR_INTERNAL;
+  if (g_post.load() == nullptr) return -EX_ERR_INTERNAL;
   if (media_path_utf8 == nullptr || model_path_utf8 == nullptr || language == nullptr) return -EX_ERR_INTERNAL;
   try {
     auto job = std::make_shared<Job>();
@@ -774,6 +787,7 @@ EX_API int64_t ex_job_start(const char* media_path_utf8, const char* model_path_
 
     std::lock_guard<std::mutex> lock(g_mutex);
     reap_locked();
+    job->port = g_port.load();  // under g_mutex, so ex_init sees every job
     g_jobs[job->id] = job;
     try {
       job->thread = std::thread(worker, job);

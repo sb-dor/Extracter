@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
 
@@ -51,11 +52,11 @@ abstract interface class IExtracterNative {
 
 final class ExtracterNative implements IExtracterNative {
   ExtracterNative._(this._bindings) {
-    // One listener for the whole process, never closed: native may post until
-    // ex_shutdown returns, and a closed callable would be undefined behaviour.
-    _listener = ffi.NativeCallable<ffi.Void Function(ffi.Pointer<ex_event>)>.listener(_onEvent)
-      ..keepIsolateAlive = false;
-    _bindings.ex_init(_listener.nativeFunction);
+    // Events arrive as addresses on a native port. Unlike a NativeCallable,
+    // a port stays safe to post to after this isolate dies (Android activity
+    // closed mid-job): Dart_PostCObject just fails and native frees the event.
+    _port = RawReceivePort(_onMessage, 'extracter_native events')..keepIsolateAlive = false;
+    _bindings.ex_init(ffi.NativeApi.postCObject.cast(), _port.sendPort.nativePort);
   }
 
   /// The process-wide engine. Throws [UnsupportedError] if the library is missing.
@@ -65,7 +66,7 @@ final class ExtracterNative implements IExtracterNative {
   static ExtracterNative? _instance;
 
   final ExtracterNativeBindings _bindings;
-  late final ffi.NativeCallable<ffi.Void Function(ffi.Pointer<ex_event>)> _listener;
+  late final RawReceivePort _port;
   final StreamController<NativeJobEvent> _events = StreamController<NativeJobEvent>.broadcast();
 
   static ffi.DynamicLibrary _open() {
@@ -76,7 +77,8 @@ final class ExtracterNative implements IExtracterNative {
     throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
   }
 
-  void _onEvent(ffi.Pointer<ex_event> pointer) {
+  void _onMessage(Object? message) {
+    final pointer = ffi.Pointer<ex_event>.fromAddress(message! as int);
     try {
       final ev = pointer.ref;
       final text = ev.text == ffi.nullptr || ev.text_len <= 0

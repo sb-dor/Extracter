@@ -2,8 +2,11 @@
 // it with whisper.cpp on a native worker thread.
 //
 // Threading and ownership contract:
-// - ex_init() registers ONE global event callback. It is called from worker
-//   threads; Dart passes a NativeCallable.listener that is never closed.
+// - ex_init() registers where events go: a Dart native port plus Dart's
+//   Dart_PostCObject (NativeApi.postCObject). Each event is posted as an int64
+//   holding its address. Posting to a port whose isolate has died just fails,
+//   so a job that outlives its isolate (e.g. the Android activity was closed)
+//   is safe; its events are freed by native instead.
 // - Every ex_event is heap-allocated by native code and owned by the receiver
 //   until it calls ex_event_free(). No pointer is read by native after posting.
 // - All string arguments are copied before the call returns.
@@ -14,6 +17,7 @@
 #ifndef EXTRACTER_NATIVE_H
 #define EXTRACTER_NATIVE_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -26,7 +30,7 @@ extern "C" {
 #define EX_API __attribute__((visibility("default"))) __attribute__((used))
 #endif
 
-#define EX_API_VERSION 1
+#define EX_API_VERSION 2
 
 typedef enum ex_event_kind {
   EX_EV_PROGRESS = 0,
@@ -60,14 +64,26 @@ typedef struct ex_event {
   int32_t text_len;           // bytes, without the terminating NUL
 } ex_event;
 
-typedef void (*ex_event_cb)(ex_event* ev);
+// Layout-compatible prefix of Dart_CObject; native only sends type kInt64 (3).
+typedef struct ex_cobject {
+  int32_t type;
+  union {
+    int64_t as_int64;
+    uint8_t reserved[48];  // Dart_CObject's union is at most 40 bytes
+  } value;
+} ex_cobject;
+
+// Signature of Dart_PostCObject: false when the port is closed.
+typedef bool (*ex_post_fn)(int64_t port, ex_cobject* message);
 
 EX_API int32_t ex_api_version(void);
 // Static string: library versions and the decode-only build profile.
 EX_API const char* ex_build_info(void);
-// Registers the global callback and installs silent native log handlers.
-// Returns 0, or -1 if called again with a different callback.
-EX_API int32_t ex_init(ex_event_cb cb);
+// Sends events of jobs started from now on to `port` and installs silent
+// native log handlers. Call once per isolate: a new port means the previous
+// isolate is gone, so its still-running jobs are cancelled. Returns 0, or -1
+// if `post` is null.
+EX_API int32_t ex_init(ex_post_fn post, int64_t port);
 // Starts a job. language: "auto" or an ISO-639-1 code. Returns a job id > 0,
 // or -ex_status when the job could not be started (no DONE follows then).
 EX_API int64_t ex_job_start(const char* media_path_utf8, const char* model_path_utf8,

@@ -16,12 +16,13 @@ functions:
 structs:
   include:
     - 'ex_event'
+    - 'ex_cobject'
 enums:
   include:
     - 'ex_.*'
 typedefs:
   include:
-    - 'ex_event_cb'
+    - 'ex_post_fn'
 comments:
   style: any
   length: full
