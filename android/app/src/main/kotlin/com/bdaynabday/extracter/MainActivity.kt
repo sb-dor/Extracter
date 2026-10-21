@@ -1,4 +1,4 @@
-package dev.extracter.app
+package com.bdaynabday.extracter
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,3 +1,11 @@
+import java.util.Properties
+
+// Release signing: android/key.properties (git-ignored) points at the upload keystore.
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -5,7 +13,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.extracter.app"
+    namespace = "com.bdaynabday.extracter"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,8 +23,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "dev.extracter.app"
+        applicationId = "com.bdaynabday.extracter"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -33,11 +40,28 @@ android {
         }
     }
 
+    packaging {
+        // Some plugins ship 32-bit libraries regardless of abiFilters; without
+        // them Play does not offer the app to devices it cannot run on.
+        jniLibs.excludes += listOf("lib/armeabi-v7a/**", "lib/armeabi/**", "lib/x86/**")
+    }
+
+    signingConfigs {
+        create("release") {
+            if (!keystoreProperties.isEmpty) {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Upload key when key.properties exists; debug key otherwise (local `flutter run --release`).
+            signingConfig =
+                if (keystoreProperties.isEmpty) signingConfigs.getByName("debug") else signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }

@@ -60,3 +60,8 @@ packages/extracter_native/.dart_tool/
 *.freezed.dart
 *.g.dart
 lib/src/common/localization/generated/
+
+# Copies for manual Play Console upload
+store/google_play/upload/
+# Icon drafts (regenerate with tool/icon/render_icons.py)
+tool/icon/out/
