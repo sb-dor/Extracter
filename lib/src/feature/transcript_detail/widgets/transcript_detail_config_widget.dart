@@ -1,6 +1,7 @@
 import 'package:extracter/src/common/dependencies/dependencies.dart';
 import 'package:extracter/src/common/model/transcript_segment.dart';
 import 'package:extracter/src/common/utils/screen_util.dart';
+import 'package:extracter/src/common/utils/transcript_formatters.dart';
 import 'package:extracter/src/common/widget/app_shell.dart';
 import 'package:extracter/src/feature/transcript_deletion/widgets/transcript_deletion_config_widget.dart';
 import 'package:extracter/src/feature/transcript_detail/controller/transcript_detail_controller.dart';
@@ -73,8 +74,9 @@ class TranscriptDetailConfigWidgetState extends State<TranscriptDetailConfigWidg
 
   void load() => transcriptDetailController.load(transcriptId);
 
-  Future<void> copy(List<TranscriptSegment> segments) =>
-      Clipboard.setData(ClipboardData(text: segments.map((s) => s.text).join('\n')));
+  Future<void> copy(List<TranscriptSegment> segments, {required bool withTimestamps}) => Clipboard.setData(
+    ClipboardData(text: TranscriptFormatters.toClipboard(segments, withTimestamps: withTimestamps)),
+  );
 
   Future<void> delete() async {
     var deleted = false;

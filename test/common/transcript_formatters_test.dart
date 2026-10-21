@@ -41,6 +41,23 @@ void main() {
       expect(vtt, isNot(contains('   \n')));
     });
 
+    test('clipboard: plain paragraphs separated by a blank line', () {
+      expect(
+        TranscriptFormatters.toClipboard(segments),
+        'The quick brown fox.\n\nZero length --> cue\n\nAfter an hour',
+      );
+    });
+
+    test('clipboard: timestamped paragraphs separated by a blank line', () {
+      expect(
+        TranscriptFormatters.toClipboard(segments, withTimestamps: true),
+        '[00:00:00 → 00:00:03] The quick brown fox.\n\n'
+        '[00:00:03 → 00:00:03] Zero length --> cue\n\n'
+        '[01:02:05 → 01:02:06] After an hour',
+      );
+      expect(TranscriptFormatters.toClipboard(const [], withTimestamps: true), '');
+    });
+
     test('empty transcript', () {
       expect(TranscriptFormatters.toTxt(const []), '');
       expect(TranscriptFormatters.toSrt(const []), '');

@@ -1,4 +1,5 @@
 import 'package:extracter/src/common/model/transcript_segment.dart';
+import 'package:extracter/src/common/utils/format_util.dart';
 
 enum TranscriptFormat {
   txt('txt', 'text/plain'),
@@ -18,6 +19,16 @@ abstract final class TranscriptFormatters {
     TranscriptFormat.srt => toSrt(segments),
     TranscriptFormat.vtt => toVtt(segments),
   };
+
+  /// Clipboard text: one paragraph per segment with a blank line between them.
+  /// [withTimestamps] prefixes each paragraph with `[00:00:00 → 00:00:07]`.
+  static String toClipboard(List<TranscriptSegment> segments, {bool withTimestamps = false}) => [
+    for (final s in segments)
+      if (s.text.trim().isNotEmpty)
+        withTimestamps
+            ? '[${FormatUtil.clock(s.startMs)} → ${FormatUtil.clock(s.endMs)}] ${s.text.trim()}'
+            : s.text.trim(),
+  ].join('\n\n');
 
   /// One segment per line.
   static String toTxt(List<TranscriptSegment> segments) {

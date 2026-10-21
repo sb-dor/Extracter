@@ -6,6 +6,7 @@ import 'package:extracter/src/common/widget/segment_row.dart';
 import 'package:extracter/src/common/widget/state_widgets.dart';
 import 'package:extracter/src/feature/transcript_detail/controller/transcript_detail_controller.dart';
 import 'package:extracter/src/feature/transcript_detail/models/transcript_detail.dart';
+import 'package:extracter/src/feature/transcript_detail/widgets/transcript_copy_menu.dart';
 import 'package:extracter/src/feature/transcript_detail/widgets/transcript_detail_config_widget.dart';
 import 'package:extracter/src/feature/transcript_detail/widgets/transcript_meta_chips.dart';
 import 'package:extracter/src/feature/transcript_export/widgets/transcript_export_config_widget.dart';
@@ -41,16 +42,7 @@ class _TranscriptDetailMobileWidgetState extends State<TranscriptDetailMobileWid
             ),
             actions: [
               if (transcript != null) ...[
-                IconButton(
-                  tooltip: l10n.copyText,
-                  onPressed: () async {
-                    await _scope.copy(transcript.segments);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.copied)));
-                    }
-                  },
-                  icon: const Icon(Icons.copy_outlined),
-                ),
+                TranscriptCopyMenu(transcript: transcript, compact: true),
                 IconButton(
                   tooltip: l10n.deleteTranscript,
                   onPressed: _scope.delete,

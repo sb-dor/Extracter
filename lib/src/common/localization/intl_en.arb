@@ -383,5 +383,8 @@
   "deleteTranscript": "Delete transcript",
   "deleteTranscriptTitle": "Delete this transcript?",
   "deleteTranscriptMessage": "The transcript and all its segments will be removed from History. The original file isn't touched.",
-  "deleteFailed": "Couldn't delete the transcript."
+  "deleteFailed": "Couldn't delete the transcript.",
+  "copy": "Copy",
+  "copyWithTimestamps": "Copy with timestamps",
+  "copiedWithTimestamps": "Copied with timestamps"
 }
