@@ -65,3 +65,6 @@ lib/src/common/localization/generated/
 store/google_play/upload/
 # Icon drafts (regenerate with tool/icon/render_icons.py)
 tool/icon/out/
+
+# Launch post drafts (private)
+launch/
