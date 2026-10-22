@@ -1,4 +1,5 @@
 extracter_native — glue code (src/, lib/, scripts/) for the Extracter app.
+The glue code is MIT-licensed, like the rest of Extracter: see ../../LICENSE.
 
 Third-party components, each under its own licence (see ../../THIRD_PARTY.md):
 - whisper.cpp / ggml — MIT License — third_party/whisper.cpp/LICENSE

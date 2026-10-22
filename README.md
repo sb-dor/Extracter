@@ -13,6 +13,7 @@
   <img alt="Offline" src="https://img.shields.io/badge/works-100%25%20offline-0F6E66">
   <img alt="Engine" src="https://img.shields.io/badge/engine-whisper.cpp%20%2B%20FFmpeg-444">
   <img alt="Google Play" src="https://img.shields.io/badge/Google%20Play-in%20review-34A853?logo=googleplay&logoColor=white">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
 </p>
 
 <p align="center">
@@ -117,3 +118,8 @@ Extracter builds on [whisper.cpp](https://github.com/ggml-org/whisper.cpp) (MIT)
 [FFmpeg](https://ffmpeg.org) (LGPL-2.1, dynamically linked, decode-only) and OpenAI's
 [Whisper](https://github.com/openai/whisper) models (MIT). Exact versions, hashes and build
 flags are listed in [THIRD_PARTY.md](THIRD_PARTY.md).
+
+## License
+
+Extracter's own code is released under the [MIT License](LICENSE). Third-party components
+keep their own licenses, listed above.
