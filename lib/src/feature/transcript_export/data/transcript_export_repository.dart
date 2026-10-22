@@ -33,7 +33,7 @@ final class TranscriptExportRepositoryImpl implements ITranscriptExportRepositor
     required TranscriptFormat format,
     Rect? shareOrigin,
   }) async {
-    final content = TranscriptFormatters.format(format, segments);
+    final content = TranscriptFormatters.format(format, segments, title: exportBaseName(sourceName));
     final fileName = '${exportBaseName(sourceName)}.${format.extension}';
     if (!_share) {
       final location = await getSaveLocation(

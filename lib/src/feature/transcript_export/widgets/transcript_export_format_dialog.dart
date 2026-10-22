@@ -6,7 +6,7 @@ import 'package:extracter/src/feature/transcript_export/controller/transcript_ex
 import 'package:extracter/src/feature/transcript_export/widgets/transcript_export_config_widget.dart';
 import 'package:flutter/material.dart';
 
-/// Choose TXT / SRT / VTT; closes itself once the export finishes.
+/// Choose TXT / SRT / VTT / Markdown; closes itself once the export finishes.
 class TranscriptExportFormatDialog extends StatefulWidget {
   const TranscriptExportFormatDialog({super.key});
 
@@ -40,6 +40,7 @@ class _TranscriptExportFormatDialogState extends State<TranscriptExportFormatDia
                       TranscriptFormat.txt => l10n.formatTxt,
                       TranscriptFormat.srt => l10n.formatSrt,
                       TranscriptFormat.vtt => l10n.formatVtt,
+                      TranscriptFormat.md => l10n.formatMd,
                     }),
                   ),
                 ),

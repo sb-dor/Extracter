@@ -33,6 +33,23 @@ void main() {
       );
     });
 
+    test('Markdown: heading and one bold-timestamp paragraph per segment', () {
+      const markdown =
+          '# voice-note\n\n'
+          '**[00:00:00]** The quick brown fox.\n\n'
+          '**[00:00:03]** Zero length --> cue\n\n'
+          '**[01:02:05]** After an hour\n';
+      expect(TranscriptFormatters.toMarkdown(segments, title: 'voice-note'), markdown);
+      expect(TranscriptFormatters.format(TranscriptFormat.md, segments, title: 'voice-note'), markdown);
+    });
+
+    test('Markdown: timestamps off and a blank title omitted', () {
+      expect(
+        TranscriptFormatters.toMarkdown(segments, title: '   ', withTimestamps: false),
+        'The quick brown fox.\n\nZero length --> cue\n\nAfter an hour\n',
+      );
+    });
+
     test('VTT: header, dot millis, arrow in text neutralised', () {
       final vtt = TranscriptFormatters.toVtt(segments);
       expect(vtt.startsWith('WEBVTT\n\n'), isTrue);
@@ -62,6 +79,8 @@ void main() {
       expect(TranscriptFormatters.toTxt(const []), '');
       expect(TranscriptFormatters.toSrt(const []), '');
       expect(TranscriptFormatters.toVtt(const []), 'WEBVTT\n\n');
+      expect(TranscriptFormatters.toMarkdown(const []), '');
+      expect(TranscriptFormatters.toMarkdown(const [], title: 'empty'), '# empty\n');
     });
   });
 

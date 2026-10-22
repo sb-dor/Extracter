@@ -143,6 +143,7 @@
   "formatTxt": "Текст (.txt)",
   "formatSrt": "Субтитры SRT (.srt)",
   "formatVtt": "Субтитры WebVTT (.vtt)",
+  "formatMd": "Markdown (.md)",
   "formatShortTxt": "TXT",
   "formatShortSrt": "Субтитры SRT",
   "formatShortVtt": "VTT",
