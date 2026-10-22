@@ -1,0 +1,34 @@
+name: Bug report
+description: Something doesn't work, crashes or transcribes wrongly.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform and device
+      placeholder: Android 15, Pixel 8 / macOS 26, M2 / iOS 26, iPhone 16
+    validations:
+      required: true
+  - type: input
+    id: file
+    attributes:
+      label: File format and length
+      description: Please don't attach private recordings. The format and length are enough.
+      placeholder: MKV video, 42 min, AAC audio
+  - type: dropdown
+    id: model
+    attributes:
+      label: Model
+      options: [Tiny, Base, Small, Medium, Large v3 Turbo, Not relevant]
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: 1.0.0

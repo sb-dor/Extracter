@@ -117,7 +117,10 @@ Everything on the Google Play page is generated from the real app:
    feature graphics in `store/google_play/{en,ru}/`.
 3. `tool/store/compose_readme_images.py` builds the README banner and screenshot strip in
    `docs/images/`.
-4. `tool/icon/render_icons.py --final b_wave_to_text` renders the launcher and Play icons.
+4. `integration_test/demo_gif_test.dart` (same `flutter drive` command, other `--target`)
+   captures the README demo frames into `build/demo_frames/`, and
+   `tool/store/compose_demo_gif.py` turns them into `docs/images/demo.gif`.
+5. `tool/icon/render_icons.py --final b_wave_to_text` renders the launcher and Play icons.
 
 Listing texts and console answers live in `store/google_play/`; the privacy policy page is
 `store/privacy/index.html`.

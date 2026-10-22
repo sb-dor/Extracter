@@ -25,6 +25,15 @@
   <a href="#build-from-source">Build</a>
 </p>
 
+<p align="center">
+  <img src="docs/images/demo.gif" alt="Demo: a podcast is transcribed live, then opened from History and copied with timestamps" width="320">
+</p>
+
+<p align="center">
+  <a href="https://github.com/sb-dor/Extracter/releases/latest"><b>⬇️ Download the Android APK</b></a> ·
+  If Extracter is useful to you, please give it a ⭐. It helps others find it.
+</p>
+
 ---
 
 ## Features
@@ -118,6 +127,12 @@ Extracter builds on [whisper.cpp](https://github.com/ggml-org/whisper.cpp) (MIT)
 [FFmpeg](https://ffmpeg.org) (LGPL-2.1, dynamically linked, decode-only) and OpenAI's
 [Whisper](https://github.com/openai/whisper) models (MIT). Exact versions, hashes and build
 flags are listed in [THIRD_PARTY.md](THIRD_PARTY.md).
+
+## Contributing
+
+Bug reports, ideas and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md), and
+look for issues labelled
+[`good first issue`](https://github.com/sb-dor/Extracter/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
 
 ## License
 
