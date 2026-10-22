@@ -30,7 +30,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sb-dor/Extracter/releases/latest"><b>⬇️ Download the Android APK</b></a> ·
+  <a href="https://github.com/sb-dor/Extracter/releases/latest"><b>⬇️ Download for Android or macOS</b></a> ·
   If Extracter is useful to you, please give it a ⭐. It helps others find it.
 </p>
 
@@ -116,9 +116,9 @@ and release builds are in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 | Platform | Status |
 |---|---|
-| Android | Release build tested on the emulator; submitted to Google Play |
+| Android | APK on GitHub Releases; submitted to Google Play |
 | iOS | Tested on the Simulator |
-| macOS | Release build tested |
+| macOS | DMG on GitHub Releases (Apple Silicon + Intel, not yet notarized) |
 | Windows, Linux | Build scripts ready, not built yet |
 
 ## Third-party components
