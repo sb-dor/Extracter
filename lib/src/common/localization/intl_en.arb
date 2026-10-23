@@ -367,6 +367,7 @@
   "formatTxt": "Plain text (.txt)",
   "formatSrt": "SRT subtitles (.srt)",
   "formatVtt": "WebVTT subtitles (.vtt)",
+  "formatMd": "Markdown (.md)",
   "formatShortTxt": "TXT",
   "formatShortSrt": "SRT subtitles",
   "formatShortVtt": "VTT",

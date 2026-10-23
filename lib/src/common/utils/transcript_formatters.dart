@@ -4,7 +4,8 @@ import 'package:extracter/src/common/utils/format_util.dart';
 enum TranscriptFormat {
   txt('txt', 'text/plain'),
   srt('srt', 'application/x-subrip'),
-  vtt('vtt', 'text/vtt');
+  vtt('vtt', 'text/vtt'),
+  md('md', 'text/markdown');
 
   const TranscriptFormat(this.extension, this.mimeType);
 
@@ -14,10 +15,11 @@ enum TranscriptFormat {
 
 /// Pure exporters for transcript segments.
 abstract final class TranscriptFormatters {
-  static String format(TranscriptFormat format, List<TranscriptSegment> segments) => switch (format) {
+  static String format(TranscriptFormat format, List<TranscriptSegment> segments, {String? title}) => switch (format) {
     TranscriptFormat.txt => toTxt(segments),
     TranscriptFormat.srt => toSrt(segments),
     TranscriptFormat.vtt => toVtt(segments),
+    TranscriptFormat.md => toMarkdown(segments, title: title),
   };
 
   /// Clipboard text: one paragraph per segment with a blank line between them.
@@ -54,6 +56,21 @@ abstract final class TranscriptFormatters {
         ..writeln();
     }
     return buffer.toString();
+  }
+
+  /// Markdown: optional `# title`, then one paragraph per segment.
+  /// [withTimestamps] prefixes each paragraph with `**[00:01:12]**`.
+  static String toMarkdown(List<TranscriptSegment> segments, {String? title, bool withTimestamps = true}) {
+    final paragraphs = [
+      for (final s in segments)
+        if (s.text.trim().isNotEmpty)
+          withTimestamps ? '**[${FormatUtil.clock(s.startMs)}]** ${s.text.trim()}' : s.text.trim(),
+    ];
+    final body = paragraphs.join('\n\n');
+    final heading = title?.trim();
+    if (heading == null || heading.isEmpty) return body.isEmpty ? '' : '$body\n';
+    if (body.isEmpty) return '# $heading\n';
+    return '# $heading\n\n$body\n';
   }
 
   /// WebVTT: `WEBVTT` header, `HH:MM:SS.mmm --> HH:MM:SS.mmm` cues.
