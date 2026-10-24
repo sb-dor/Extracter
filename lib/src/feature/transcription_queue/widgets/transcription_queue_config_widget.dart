@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:extracter/src/common/background/background_work.dart';
 import 'package:extracter/src/common/dependencies/dependencies.dart';
 import 'package:extracter/src/common/localization/generated/l10n.dart';
 import 'package:extracter/src/common/model/whisper_model_spec.dart';
@@ -72,10 +73,15 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
   DateTime? activeSince;
   bool _wakelock = false;
 
+  /// Progress notification (Android) while any file is queued or running.
+  late final IBackgroundWork backgroundWork;
+  String? _notification;
+
   @override
   void initState() {
     super.initState();
     final dependencies = Dependencies.of(context);
+    backgroundWork = dependencies.backgroundWork;
     settingsDataController = TranscriptionSettingsConfigInhWidget.of(context).settingsDataController;
     queueController = TranscriptionQueueController(
       transcriptionQueueRepository: TranscriptionQueueRepositoryImpl(
@@ -111,6 +117,7 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
     adding.dispose();
     dragging.dispose();
     if (_wakelock) WakelockPlus.disable().ignore();
+    if (_notification != null) backgroundWork.hide().ignore();
     super.dispose();
   }
 
@@ -126,6 +133,39 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
       // The screen stays on while transcribing; the OS would otherwise suspend us.
       WakelockPlus.toggle(enable: working).catchError((Object e) => l.w('wakelock: ${e.runtimeType}'));
     }
+    _updateNotification(state);
+  }
+
+  /// Shows "Transcribing lecture.mp4 · 45% done · 2 more files waiting" until the
+  /// queue has nothing left to do; re-posted only when the text changes.
+  void _updateNotification(TranscriptionQueueState state) {
+    final unfinished = state.jobs.where((j) => !j.status.isTerminal).toList();
+    if (unfinished.isEmpty) {
+      if (_notification != null) backgroundWork.hide().ignore();
+      _notification = null;
+      return;
+    }
+    final l10n = Localization.of(context);
+    final current = state.active ?? unfinished.first;
+    final permille = current.permille;
+    final percent = permille == null || permille < 0 ? null : permille ~/ 10;
+    final waiting = unfinished.where((j) => j.status == QueueJobStatus.pending && j.id != current.id).length;
+    final title = l10n.notificationTranscribing(current.sourceName);
+    final text = [
+      if (percent == null) l10n.notificationPreparing else l10n.notificationPercent(percent),
+      if (waiting > 0) l10n.notificationWaiting(waiting),
+    ].join(' · ');
+    final notification = '$title\n$text';
+    if (notification == _notification) return;
+    _notification = notification;
+    backgroundWork
+        .show(
+          channelName: l10n.notificationChannel,
+          title: title,
+          text: text,
+          permille: percent == null ? null : percent * 10,
+        )
+        .ignore();
   }
 
   void _onSaveChanged() {

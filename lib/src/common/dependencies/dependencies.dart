@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:extracter/src/common/background/background_work.dart';
 import 'package:extracter/src/common/database/database.dart';
 import 'package:extracter/src/common/dependencies/dependencies_scope.dart';
 import 'package:extracter/src/common/model_store/model_store.dart';
@@ -29,6 +30,7 @@ final class Dependencies {
     required this.modelStore,
     required this.httpClient,
     required this.inboxDirectory,
+    required this.backgroundWork,
   });
 
   final SharedPreferences sharedPreferences;
@@ -39,6 +41,9 @@ final class Dependencies {
 
   /// App-private copies of picked files that had no readable path (Android).
   final Directory inboxDirectory;
+
+  /// Keeps transcription alive in the background (Android foreground service).
+  final IBackgroundWork backgroundWork;
 
   static Dependencies of(BuildContext context) => DependenciesScope.of(context);
 
@@ -78,6 +83,7 @@ final class Dependencies {
       modelStore: modelStore,
       httpClient: http.Client(),
       inboxDirectory: inbox,
+      backgroundWork: Platform.isAndroid ? AndroidBackgroundWork() : const NoopBackgroundWork(),
     );
   }
 

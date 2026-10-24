@@ -387,5 +387,18 @@
   "deleteFailed": "Couldn't delete the transcript.",
   "copy": "Copy",
   "copyWithTimestamps": "Copy with timestamps",
-  "copiedWithTimestamps": "Copied with timestamps"
+  "copiedWithTimestamps": "Copied with timestamps",
+  "workInBackground": "You can switch apps while Extracter works. Progress is shown in a notification.",
+  "notificationChannel": "Transcription progress",
+  "notificationTranscribing": "Transcribing {name}",
+  "@notificationTranscribing": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationPreparing": "Preparing…",
+  "notificationPercent": "{percent}% done",
+  "notificationWaiting": "{count, plural, =1{1 more file waiting} other{{count} more files waiting}}"
 }

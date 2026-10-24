@@ -156,5 +156,11 @@
   "deleteFailed": "Не удалось удалить расшифровку.",
   "copy": "Копировать",
   "copyWithTimestamps": "Копировать с таймкодами",
-  "copiedWithTimestamps": "Скопировано с таймкодами"
+  "copiedWithTimestamps": "Скопировано с таймкодами",
+  "workInBackground": "Можно переключаться на другие приложения — Extracter продолжит работу, а прогресс будет в уведомлении.",
+  "notificationChannel": "Ход расшифровки",
+  "notificationTranscribing": "Расшифровка: {name}",
+  "notificationPreparing": "Подготовка…",
+  "notificationPercent": "Готово {percent}%",
+  "notificationWaiting": "{count, plural, one{Ещё {count} файл в очереди} few{Ещё {count} файла в очереди} many{Ещё {count} файлов в очереди} other{Ещё {count} файла в очереди}}"
 }
