@@ -5,9 +5,13 @@ import 'package:extracter/src/common/utils/whisper_languages.dart';
 import 'package:extracter/src/feature/transcription_queue/models/queue_job.dart';
 import 'package:extracter/src/feature/transcription_queue/models/transcription_failure.dart';
 import 'package:extracter/src/feature/whisper_models/widgets/whisper_model_labels.dart';
+import 'package:intl/intl.dart';
 
-String languageLabel(Localization l10n, String code) =>
-    code == TranscriptionSettings.autoLanguage ? l10n.languageAuto : (WhisperLanguage.byCode(code)?.name ?? code);
+/// "Auto-detect", or the language name in the UI language ("Русский" in the Russian UI).
+String languageLabel(Localization l10n, String code) {
+  if (code == TranscriptionSettings.autoLanguage) return l10n.languageAuto;
+  return WhisperLanguage.byCode(code)?.nameIn(Intl.shortLocale(Intl.getCurrentLocale())) ?? code;
+}
 
 /// "48:12 · Base · Auto-detect · Translate" / "2:14 · Base · Detected: Russian".
 String jobMeta(Localization l10n, QueueJob job) {

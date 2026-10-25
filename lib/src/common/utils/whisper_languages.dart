@@ -1,3 +1,4 @@
+import 'package:extracter/src/common/utils/whisper_language_names.dart';
 import 'package:flutter/foundation.dart';
 
 /// A language Whisper can transcribe (codes and names from whisper.cpp v1.9.5).
@@ -7,8 +8,11 @@ class WhisperLanguage {
 
   final String code;
 
-  /// English name; shown with the code in pickers.
+  /// English name; the fallback when [nameIn] has no translation.
   final String name;
+
+  /// Name in the UI language [languageCode] (e.g. "ru" → "Русский"), else English.
+  String nameIn(String languageCode) => whisperLanguageNames[languageCode]?[code] ?? name;
 
   static const List<WhisperLanguage> all = [
     WhisperLanguage('en', 'English'),

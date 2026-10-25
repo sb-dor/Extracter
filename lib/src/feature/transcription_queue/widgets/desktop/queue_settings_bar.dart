@@ -5,6 +5,7 @@ import 'package:extracter/src/common/model/whisper_model_spec.dart';
 import 'package:extracter/src/common/utils/format_util.dart';
 import 'package:extracter/src/common/utils/whisper_languages.dart';
 import 'package:extracter/src/common/widget/app_theme.dart';
+import 'package:extracter/src/feature/transcription_queue/widgets/queue_labels.dart';
 import 'package:extracter/src/feature/transcription_queue/widgets/transcription_queue_config_widget.dart';
 import 'package:extracter/src/feature/whisper_models/controller/whisper_models_controller.dart';
 import 'package:extracter/src/feature/whisper_models/models/whisper_model_item.dart';
@@ -94,7 +95,7 @@ class _QueueSettingsBarState extends State<QueueSettingsBar> {
                       items: [
                         DropdownMenuItem(value: TranscriptionSettings.autoLanguage, child: Text(l10n.languageAuto)),
                         for (final language in WhisperLanguage.all)
-                          DropdownMenuItem(value: language.code, child: Text(language.name)),
+                          DropdownMenuItem(value: language.code, child: Text(languageLabel(l10n, language.code))),
                       ],
                       onChanged: (code) {
                         if (code != null) _settings.setLanguage(code);
