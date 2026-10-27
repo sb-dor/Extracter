@@ -12,7 +12,7 @@
   <img alt="Platforms" src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-0F6E66">
   <img alt="Offline" src="https://img.shields.io/badge/works-100%25%20offline-0F6E66">
   <img alt="Engine" src="https://img.shields.io/badge/engine-whisper.cpp%20%2B%20FFmpeg-444">
-  <img alt="Google Play" src="https://img.shields.io/badge/Google%20Play-in%20review-34A853?logo=googleplay&logoColor=white">
+  <a href="https://play.google.com/store/apps/details?id=com.bdaynabday.extracter"><img alt="Get it on Google Play" src="https://img.shields.io/badge/Google%20Play-available-34A853?logo=googleplay&logoColor=white"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
 </p>
 
@@ -30,7 +30,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sb-dor/Extracter/releases/latest"><b>⬇️ Download for Android or macOS</b></a> ·
+  <a href="https://play.google.com/store/apps/details?id=com.bdaynabday.extracter"><b>▶️ Get it on Google Play</b></a> ·
+  <a href="https://github.com/sb-dor/Extracter/releases/latest"><b>⬇️ Download APK or macOS</b></a> ·
   If Extracter is useful to you, please give it a ⭐. It helps others find it.
 </p>
 
@@ -116,7 +117,7 @@ and release builds are in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 | Platform | Status |
 |---|---|
-| Android | APK on GitHub Releases; submitted to Google Play |
+| Android | [Google Play](https://play.google.com/store/apps/details?id=com.bdaynabday.extracter); APK on GitHub Releases |
 | iOS | Tested on the Simulator |
 | macOS | DMG on GitHub Releases (Apple Silicon + Intel, not yet notarized) |
 | Windows, Linux | Build scripts ready, not built yet |
