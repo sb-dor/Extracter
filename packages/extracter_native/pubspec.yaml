@@ -1,6 +1,6 @@
 name: extracter_native
 description: "On-device transcription for Extracter: FFmpeg decoding + whisper.cpp via FFI."
-version: 1.0.0
+version: 1.0.1
 publish_to: 'none'
 
 environment:
