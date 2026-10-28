@@ -158,9 +158,12 @@
   "copyWithTimestamps": "Копировать с таймкодами",
   "copiedWithTimestamps": "Скопировано с таймкодами",
   "workInBackground": "Можно переключаться на другие приложения — Extracter продолжит работу, а прогресс будет в уведомлении.",
-  "notificationChannel": "Ход расшифровки",
+  "notificationChannel": "Расшифровка и загрузки",
   "notificationTranscribing": "Расшифровка: {name}",
+  "notificationTranscribingPublic": "Расшифровка файла",
   "notificationPreparing": "Подготовка…",
   "notificationPercent": "Готово {percent}%",
-  "notificationWaiting": "{count, plural, one{Ещё {count} файл в очереди} few{Ещё {count} файла в очереди} many{Ещё {count} файлов в очереди} other{Ещё {count} файла в очереди}}"
+  "notificationWaiting": "{count, plural, one{Ещё {count} файл в очереди} few{Ещё {count} файла в очереди} many{Ещё {count} файлов в очереди} other{Ещё {count} файла в очереди}}",
+  "notificationDownloading": "Загрузка модели {name}",
+  "notificationDownloaded": "{percent}% из {total}"
 }

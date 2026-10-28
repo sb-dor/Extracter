@@ -389,7 +389,7 @@
   "copyWithTimestamps": "Copy with timestamps",
   "copiedWithTimestamps": "Copied with timestamps",
   "workInBackground": "You can switch apps while Extracter works. Progress is shown in a notification.",
-  "notificationChannel": "Transcription progress",
+  "notificationChannel": "Transcriptions and downloads",
   "notificationTranscribing": "Transcribing {name}",
   "@notificationTranscribing": {
     "placeholders": {
@@ -398,7 +398,27 @@
       }
     }
   },
+  "notificationTranscribingPublic": "Transcribing a file",
   "notificationPreparing": "Preparing…",
   "notificationPercent": "{percent}% done",
-  "notificationWaiting": "{count, plural, =1{1 more file waiting} other{{count} more files waiting}}"
+  "notificationWaiting": "{count, plural, =1{1 more file waiting} other{{count} more files waiting}}",
+  "notificationDownloading": "Downloading the {name} model",
+  "@notificationDownloading": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationDownloaded": "{percent}% of {total}",
+  "@notificationDownloaded": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  }
 }

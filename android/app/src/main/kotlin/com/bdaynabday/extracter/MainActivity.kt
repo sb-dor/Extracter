@@ -10,25 +10,35 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    /** True while the background-work notification is shown (files are queued or running). */
-    private var working = false
+    /** Latest progress of the running work (transcription, model download), or null when idle. */
+    private var content: TranscriptionService.Content? = null
+
+    /** False between onStop and onStart: the progress notification is shown only then. */
+    private var visible = false
+
+    /** True while the foreground service (and its notification) is running. */
+    private var serviceRunning = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
-                "show" -> {
-                    val content = TranscriptionService.Content(
-                        channelName = call.argument<String>("channel") ?: "Transcription",
-                        title = call.argument<String>("title") ?: "Extracter",
-                        text = call.argument<String>("text") ?: "",
-                        permille = call.argument<Int>("permille") ?: -1,
+                "update" -> {
+                    update(
+                        TranscriptionService.Content(
+                            channelName = call.argument<String>("channel") ?: "Extracter",
+                            title = call.argument<String>("title") ?: "Extracter",
+                            publicTitle = call.argument<String>("publicTitle") ?: "Extracter",
+                            text = call.argument<String>("text") ?: "",
+                            permille = call.argument<Int>("permille") ?: -1,
+                            kinds = call.argument<List<String>>("kinds") ?: emptyList(),
+                        ),
                     )
-                    result.success(show(content))
+                    result.success(null)
                 }
-                "hide" -> {
-                    working = false
-                    stopService(TranscriptionService.Content.fromIntent(null).toIntent(this))
+                "clear" -> {
+                    content = null
+                    stopBackgroundService()
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -36,26 +46,51 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Starts the service the first time, then only refreshes its notification. */
-    private fun show(content: TranscriptionService.Content): Boolean {
-        if (!working) {
-            requestNotificationPermission()
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(content.toIntent(this))
-                } else {
-                    startService(content.toIntent(this))
-                }
-            } catch (e: IllegalStateException) {
-                // Background start refused (Android 12+): keep working without it.
-                return false
-            }
-            working = true
-            return true
+    private fun update(next: TranscriptionService.Content) {
+        // Asked while the app is still on screen, before the first notification is due.
+        if (content == null && visible) requestNotificationPermission()
+        content = next
+        if (!visible) startOrUpdateBackgroundService(next)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        visible = true
+        // Back on screen: the app shows progress itself, so the notification goes away.
+        stopBackgroundService()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isChangingConfigurations) return
+        visible = false
+        // Leaving the screen is the moment Android 12+ still allows a foreground-service start.
+        content?.let(::startOrUpdateBackgroundService)
+    }
+
+    /** Starts the service on the way to the background, then only refreshes its notification. */
+    private fun startOrUpdateBackgroundService(content: TranscriptionService.Content) {
+        if (serviceRunning) {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.notify(TranscriptionService.NOTIFICATION_ID, TranscriptionService.buildNotification(this, content))
+            return
         }
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.notify(TranscriptionService.NOTIFICATION_ID, TranscriptionService.buildNotification(this, content))
-        return true
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(content.toIntent(this))
+            } else {
+                startService(content.toIntent(this))
+            }
+            serviceRunning = true
+        } catch (e: IllegalStateException) {
+            // Background start refused (Android 12+): the work runs until Android suspends the app.
+        }
+    }
+
+    private fun stopBackgroundService() {
+        if (!serviceRunning) return
+        serviceRunning = false
+        stopService(TranscriptionService.Content.fromIntent(null).toIntent(this))
     }
 
     private fun requestNotificationPermission() {
@@ -66,9 +101,9 @@ class MainActivity : FlutterActivity() {
     }
 
     // Back on the first screen would finish the activity and end the Dart side
-    // of a running transcription; while working, send the app to the background.
+    // of running work; while working, send the app to the background instead.
     override fun popSystemNavigator(): Boolean {
-        if (!working) return false
+        if (content == null) return false
         moveTaskToBack(true)
         return true
     }

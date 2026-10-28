@@ -73,9 +73,8 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
   DateTime? activeSince;
   bool _wakelock = false;
 
-  /// Progress notification (Android) while any file is queued or running.
+  /// Keeps queued and running files going in the background (Android).
   late final IBackgroundWork backgroundWork;
-  String? _notification;
 
   @override
   void initState() {
@@ -117,7 +116,7 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
     adding.dispose();
     dragging.dispose();
     if (_wakelock) WakelockPlus.disable().ignore();
-    if (_notification != null) backgroundWork.hide().ignore();
+    _reportBackground(null);
     super.dispose();
   }
 
@@ -136,13 +135,12 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
     _updateNotification(state);
   }
 
-  /// Shows "Transcribing lecture.mp4 · 45% done · 2 more files waiting" until the
-  /// queue has nothing left to do; re-posted only when the text changes.
+  /// Reports "Transcribing lecture.mp4 · 45% done · 2 more files waiting" until
+  /// the queue has nothing left to do.
   void _updateNotification(TranscriptionQueueState state) {
     final unfinished = state.jobs.where((j) => !j.status.isTerminal).toList();
     if (unfinished.isEmpty) {
-      if (_notification != null) backgroundWork.hide().ignore();
-      _notification = null;
+      _reportBackground(null);
       return;
     }
     final l10n = Localization.of(context);
@@ -150,23 +148,22 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
     final permille = current.permille;
     final percent = permille == null || permille < 0 ? null : permille ~/ 10;
     final waiting = unfinished.where((j) => j.status == QueueJobStatus.pending && j.id != current.id).length;
-    final title = l10n.notificationTranscribing(current.sourceName);
-    final text = [
-      if (percent == null) l10n.notificationPreparing else l10n.notificationPercent(percent),
-      if (waiting > 0) l10n.notificationWaiting(waiting),
-    ].join(' · ');
-    final notification = '$title\n$text';
-    if (notification == _notification) return;
-    _notification = notification;
-    backgroundWork
-        .show(
-          channelName: l10n.notificationChannel,
-          title: title,
-          text: text,
-          permille: percent == null ? null : percent * 10,
-        )
-        .ignore();
+    _reportBackground(
+      BackgroundProgress(
+        channelName: l10n.notificationChannel,
+        title: l10n.notificationTranscribing(current.sourceName),
+        publicTitle: l10n.notificationTranscribingPublic,
+        text: [
+          if (percent == null) l10n.notificationPreparing else l10n.notificationPercent(percent),
+          if (waiting > 0) l10n.notificationWaiting(waiting),
+        ].join(' · '),
+        permille: percent == null ? null : percent * 10,
+      ),
+    );
   }
+
+  void _reportBackground(BackgroundProgress? progress) =>
+      backgroundWork.report(BackgroundWorkKind.transcription, progress).ignore();
 
   void _onSaveChanged() {
     final state = transcriptSaveController.state;
