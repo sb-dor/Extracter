@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:extracter/src/common/database/database.dart';
 import 'package:extracter/src/common/model/transcript_segment.dart';
 import 'package:extracter/src/common/model/transcription_settings.dart';
 import 'package:extracter/src/common/model_store/model_store.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
+import 'package:extracter/src/feature/transcription_queue/models/job_resources.dart';
 import 'package:extracter/src/feature/transcription_queue/models/picked_media.dart';
 import 'package:extracter/src/feature/transcription_queue/models/queue_job.dart';
 import 'package:extracter/src/feature/transcription_queue/models/transcription_event.dart';
@@ -14,19 +17,21 @@ import 'package:file_picker/file_picker.dart';
 import 'package:l/l.dart';
 import 'package:path/path.dart' as p;
 
+/// Stateless: what a job holds travels with it ([QueueJob.resources]) and
+/// cancelling goes through the caller's [CancelToken].
 abstract interface class ITranscriptionQueueRepository {
   /// Validates and readies one file: reserves the model, copies a content-URI
   /// file into app storage. Throws [QueueRejectedException].
   Future<QueueJob> prepare(PickedMedia media, TranscriptionSettings settings);
 
-  /// Runs [job] natively. Ends with exactly one completed/failed event and
-  /// then releases everything the job held (reservation, input copy).
-  Stream<TranscriptionEvent> transcribe(QueueJob job);
+  /// Runs [job] natively once listened to. Ends with exactly one
+  /// completed/failed event and then releases the job's resources.
+  ///
+  /// [token] asks native to stop; the stream still ends with its final event
+  /// (cancelled), so the next job never starts while this one unwinds.
+  Stream<TranscriptionEvent> transcribe(QueueJob job, CancelToken token);
 
-  /// Requests cancellation; the stream still ends with its final event.
-  void cancel(QueueJob job);
-
-  /// Drops a job that never ran.
+  /// Drops a job that never ran, releasing its resources.
   Future<void> discard(QueueJob job);
 
   /// Stores a finished job in history; returns the transcript id.
@@ -58,15 +63,11 @@ final class TranscriptionQueueRepositoryImpl implements ITranscriptionQueueRepos
   final Directory _inbox;
   final int _threads;
 
-  /// The repository is the sole owner of these; each entry is released once.
-  final Map<String, ModelReservation> _reservations = <String, ModelReservation>{};
-  final Map<String, File> _inputCopies = <String, File>{};
-  final Map<String, int> _nativeIds = <String, int>{};
-  int _nextId = 0;
+  static final math.Random _random = math.Random();
 
   @override
   Future<QueueJob> prepare(PickedMedia media, TranscriptionSettings settings) async {
-    final id = 'job-${DateTime.now().microsecondsSinceEpoch}-${_nextId++}';
+    final id = 'job-${DateTime.now().microsecondsSinceEpoch}-${_random.nextInt(1 << 32)}';
     final free = _native.freeDiskBytes(_inbox.path);
     if (free != null && free < minFreeBytes) {
       throw QueueRejectedException(TranscriptionFailure.lowStorage, fileName: media.name);
@@ -79,6 +80,7 @@ final class TranscriptionQueueRepositoryImpl implements ITranscriptionQueueRepos
       throw QueueRejectedException(TranscriptionFailure.modelMissing, fileName: media.name);
     }
 
+    File? copy;
     try {
       final path = media.path;
       String mediaPath;
@@ -86,28 +88,32 @@ final class TranscriptionQueueRepositoryImpl implements ITranscriptionQueueRepos
         mediaPath = path;
       } else {
         // Content URI (Android SAF): copy the bytes into app-private storage.
-        final copy = File(p.join(_inbox.path, '$id${p.extension(media.name)}'));
-        final sink = copy.openWrite();
+        final file = copy = File(p.join(_inbox.path, '$id${p.extension(media.name)}'));
+        final sink = file.openWrite();
         try {
           await sink.addStream(media.file.openRead());
         } finally {
           await sink.close();
         }
-        _inputCopies[id] = copy;
-        mediaPath = copy.path;
+        mediaPath = file.path;
       }
-      _reservations[id] = reservation;
-      return QueueJob(id: id, sourceName: media.name, mediaPath: mediaPath, settings: settings);
+      return QueueJob(
+        id: id,
+        sourceName: media.name,
+        mediaPath: mediaPath,
+        settings: settings,
+        resources: JobResources(reservation: reservation, inputCopy: copy),
+      );
     } on Object catch (error) {
-      reservation.release();
-      await _deleteCopy(id);
+      await JobResources(reservation: reservation, inputCopy: copy).release();
       l.w('prepare failed: ${error.runtimeType}');
       throw QueueRejectedException(TranscriptionFailure.unreadableFile, fileName: media.name);
     }
   }
 
   @override
-  Stream<TranscriptionEvent> transcribe(QueueJob job) {
+  Stream<TranscriptionEvent> transcribe(QueueJob job, CancelToken token) {
+    // Everything below belongs to this one stream and ends with it.
     late final StreamController<TranscriptionEvent> controller;
     StreamSubscription<NativeJobEvent>? subscription;
     int? nativeId;
@@ -116,17 +122,22 @@ final class TranscriptionQueueRepositoryImpl implements ITranscriptionQueueRepos
     void close() {
       if (closed) return;
       closed = true;
+      token.onCancel = null;
       subscription?.cancel().ignore();
-      _nativeIds.remove(job.id);
-      _releaseJob(job.id);
+      job.resources?.release().ignore();
       controller.close().ignore();
     }
 
     controller = StreamController<TranscriptionEvent>(
       onListen: () {
-        final reservation = _reservations[job.id];
-        if (reservation == null) {
+        final modelPath = job.resources?.modelPath;
+        if (modelPath == null) {
           controller.add(const TranscriptionFailed(TranscriptionFailure.modelMissing));
+          close();
+          return;
+        }
+        if (token.isCancelled) {
+          controller.add(const TranscriptionFailed(TranscriptionFailure.cancelled));
           close();
           return;
         }
@@ -153,7 +164,7 @@ final class TranscriptionQueueRepositoryImpl implements ITranscriptionQueueRepos
         });
         final id = _native.startJob(
           mediaPath: job.mediaPath,
-          modelPath: reservation.path,
+          modelPath: modelPath,
           language: job.settings.language,
           translate: job.settings.translate,
           threads: _threads,
@@ -165,7 +176,7 @@ final class TranscriptionQueueRepositoryImpl implements ITranscriptionQueueRepos
           return;
         }
         nativeId = id;
-        _nativeIds[job.id] = id;
+        token.onCancel = () => _native.cancelJob(id);
       },
       onCancel: () {
         final id = nativeId;
@@ -176,13 +187,7 @@ final class TranscriptionQueueRepositoryImpl implements ITranscriptionQueueRepos
   }
 
   @override
-  void cancel(QueueJob job) {
-    final id = _nativeIds[job.id];
-    if (id != null) _native.cancelJob(id);
-  }
-
-  @override
-  Future<void> discard(QueueJob job) async => _releaseJob(job.id);
+  Future<void> discard(QueueJob job) async => job.resources?.release();
 
   @override
   Future<int> save(QueueJob job) => _database.insertTranscript(job.toNewTranscript(DateTime.now()));
@@ -195,16 +200,6 @@ final class TranscriptionQueueRepositoryImpl implements ITranscriptionQueueRepos
     } on Object catch (error) {
       l.w('clearTemporaryFiles failed: ${error.runtimeType}');
     }
-  }
-
-  void _releaseJob(String jobId) {
-    _reservations.remove(jobId)?.release();
-    _deleteCopy(jobId).ignore();
-  }
-
-  Future<void> _deleteCopy(String jobId) async {
-    final copy = _inputCopies.remove(jobId);
-    if (copy != null && copy.existsSync()) await copy.delete();
   }
 
   static TranscriptionFailure _failureOf(NativeJobStatus status) => switch (status) {

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:extracter/src/common/model/whisper_model_spec.dart';
 import 'package:extracter/src/common/model_store/model_store.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
 import 'package:extracter/src/feature/whisper_model_download/models/model_download.dart';
 import 'package:http/http.dart' as http;
 import 'package:l/l.dart';
@@ -11,7 +12,7 @@ import 'package:l/l.dart';
 abstract interface class IWhisperModelDownloadRepository {
   /// Downloads [spec] into the model store. Emits progress, completes when the
   /// verified file is installed, errors with [ModelDownloadException].
-  Stream<ModelDownloadProgress> download(WhisperModelSpec spec, DownloadCancelToken token);
+  Stream<ModelDownloadProgress> download(WhisperModelSpec spec, CancelToken token);
 }
 
 final class WhisperModelDownloadRepositoryImpl implements IWhisperModelDownloadRepository {
@@ -32,7 +33,7 @@ final class WhisperModelDownloadRepositoryImpl implements IWhisperModelDownloadR
   static final RegExp _contentRange = RegExp(r'^bytes (\d+)-(\d+)/(\d+)$');
 
   @override
-  Stream<ModelDownloadProgress> download(WhisperModelSpec spec, DownloadCancelToken token) {
+  Stream<ModelDownloadProgress> download(WhisperModelSpec spec, CancelToken token) {
     final controller = StreamController<ModelDownloadProgress>();
     Future<void>(() async {
       var began = false;

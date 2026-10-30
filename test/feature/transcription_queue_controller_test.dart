@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cross_file/cross_file.dart';
 import 'package:extracter/src/common/model/transcript_segment.dart';
 import 'package:extracter/src/common/model/transcription_settings.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
 import 'package:extracter/src/feature/transcription_queue/controller/transcription_queue_controller.dart';
 import 'package:extracter/src/feature/transcription_queue/data/transcription_queue_repository.dart';
 import 'package:extracter/src/feature/transcription_queue/models/picked_media.dart';
@@ -33,13 +34,11 @@ final class FakeQueueRepository implements ITranscriptionQueueRepository {
   }
 
   @override
-  Stream<TranscriptionEvent> transcribe(QueueJob job) {
+  Stream<TranscriptionEvent> transcribe(QueueJob job, CancelToken token) {
     started.add(job.id);
+    token.onCancel = () => cancelled.add(job.id);
     return streams[job.id]!.stream;
   }
-
-  @override
-  void cancel(QueueJob job) => cancelled.add(job.id);
 
   @override
   Future<void> discard(QueueJob job) async => discarded.add(job.id);

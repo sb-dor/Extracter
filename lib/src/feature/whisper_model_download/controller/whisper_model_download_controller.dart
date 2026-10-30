@@ -1,5 +1,6 @@
 import 'package:control/control.dart';
 import 'package:extracter/src/common/model/whisper_model_spec.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
 import 'package:extracter/src/feature/whisper_model_download/data/whisper_model_download_repository.dart';
 import 'package:extracter/src/feature/whisper_model_download/models/model_download.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -38,11 +39,11 @@ final class WhisperModelDownloadController extends StateController<WhisperModelD
   }) : _repository = whisperModelDownloadRepository;
 
   final IWhisperModelDownloadRepository _repository;
-  DownloadCancelToken? _token;
+  CancelToken? _token;
 
   void download(WhisperModelSpec spec) => handle(
     () async {
-      final token = _token = DownloadCancelToken();
+      final token = _token = CancelToken();
       setState(WhisperModelDownloadState.inProgress(modelId: spec.id, receivedBytes: 0, totalBytes: spec.sizeBytes));
       try {
         await for (final p in _repository.download(spec, token)) {

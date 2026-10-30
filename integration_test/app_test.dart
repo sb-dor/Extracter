@@ -10,10 +10,12 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:collection/collection.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:extracter/src/common/dependencies/dependencies.dart';
 import 'package:extracter/src/common/model/transcription_settings.dart';
 import 'package:extracter/src/common/model/whisper_model_spec.dart';
 import 'package:extracter/src/common/model_store/model_store.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
 import 'package:extracter/src/common/widget/app.dart';
 import 'package:extracter/src/feature/transcript_deletion/data/transcript_deletion_repository.dart';
 import 'package:extracter/src/feature/transcript_detail/data/transcript_detail_repository.dart';
@@ -23,8 +25,6 @@ import 'package:extracter/src/feature/transcription_queue/models/picked_media.da
 import 'package:extracter/src/feature/transcription_queue/models/queue_job.dart';
 import 'package:extracter/src/feature/transcripts/data/transcripts_repository.dart';
 import 'package:extracter/src/feature/whisper_model_download/data/whisper_model_download_repository.dart';
-import 'package:extracter/src/feature/whisper_model_download/models/model_download.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -59,7 +59,7 @@ void main() {
           modelStore: store,
           freeDiskBytes: dependencies.native.freeDiskBytes,
         );
-        await download.download(tiny, DownloadCancelToken()).drain<void>();
+        await download.download(tiny, CancelToken()).drain<void>();
       }
       expect(store.isInstalled(tiny.id), isTrue, reason: 'tiny model installed after verified download');
 

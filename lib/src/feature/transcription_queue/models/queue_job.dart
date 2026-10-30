@@ -1,6 +1,7 @@
 import 'package:extracter/src/common/database/database.dart';
 import 'package:extracter/src/common/model/transcript_segment.dart';
 import 'package:extracter/src/common/model/transcription_settings.dart';
+import 'package:extracter/src/feature/transcription_queue/models/job_resources.dart';
 import 'package:extracter/src/feature/transcription_queue/models/transcription_failure.dart';
 import 'package:flutter/foundation.dart';
 
@@ -26,6 +27,7 @@ class QueueJob {
     required this.sourceName,
     required this.mediaPath,
     required this.settings,
+    this.resources,
     this.status = QueueJobStatus.pending,
     this.segments = const <TranscriptSegment>[],
     this.permille,
@@ -41,6 +43,10 @@ class QueueJob {
   final String sourceName;
   final String mediaPath;
   final TranscriptionSettings settings;
+
+  /// Held from prepare until the job ends or is discarded; kept by [copyWith].
+  /// Null for a job that holds nothing.
+  final JobResources? resources;
   final QueueJobStatus status;
   final List<TranscriptSegment> segments;
 
@@ -64,6 +70,7 @@ class QueueJob {
     sourceName: sourceName,
     mediaPath: mediaPath,
     settings: settings,
+    resources: resources,
     status: status ?? this.status,
     segments: segments ?? this.segments,
     permille: permille != null ? permille() : this.permille,

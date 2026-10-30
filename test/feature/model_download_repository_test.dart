@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:extracter/src/common/model/whisper_model_spec.dart';
 import 'package:extracter/src/common/model_store/model_store.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
 import 'package:extracter/src/feature/whisper_model_download/data/whisper_model_download_repository.dart';
 import 'package:extracter/src/feature/whisper_model_download/models/model_download.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -57,9 +58,9 @@ void main() {
     headers: {'content-range': range ?? 'bytes $from-${_bytes.length - 1}/${_bytes.length}'},
   );
 
-  Future<ModelDownloadFailure?> run(WhisperModelDownloadRepositoryImpl r, [DownloadCancelToken? token]) async {
+  Future<ModelDownloadFailure?> run(WhisperModelDownloadRepositoryImpl r, [CancelToken? token]) async {
     try {
-      await r.download(_spec, token ?? DownloadCancelToken()).drain<void>();
+      await r.download(_spec, token ?? CancelToken()).drain<void>();
       return null;
     } on ModelDownloadException catch (e) {
       return e.reason;
@@ -113,7 +114,7 @@ void main() {
   });
 
   test('cancel stops the download and keeps the .part for resume', () async {
-    final token = DownloadCancelToken();
+    final token = CancelToken();
     final body = StreamController<List<int>>();
     final r = repo((_) async => http.StreamedResponse(body.stream, 200, contentLength: _bytes.length));
     final result = run(r, token);

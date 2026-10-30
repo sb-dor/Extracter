@@ -7,8 +7,8 @@ import 'package:extracter/src/common/database/database.dart';
 import 'package:extracter/src/common/dependencies/dependencies.dart';
 import 'package:extracter/src/common/model/transcript_segment.dart';
 import 'package:extracter/src/common/model/whisper_model_spec.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
 import 'package:extracter/src/feature/whisper_model_download/data/whisper_model_download_repository.dart';
-import 'package:extracter/src/feature/whisper_model_download/models/model_download.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -109,7 +109,7 @@ Future<Dependencies> initCaptureDependencies(WidgetTester tester) async {
       await WhisperModelDownloadRepositoryImpl(
         modelStore: dependencies.modelStore,
         freeDiskBytes: dependencies.native.freeDiskBytes,
-      ).download(base, DownloadCancelToken()).drain<void>();
+      ).download(base, CancelToken()).drain<void>();
     }
   });
   return dependencies;

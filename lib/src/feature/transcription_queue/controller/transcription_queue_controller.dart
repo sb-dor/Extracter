@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:control/control.dart';
 import 'package:extracter/src/common/model/transcript_segment.dart';
 import 'package:extracter/src/common/model/transcription_settings.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
 import 'package:extracter/src/feature/transcription_queue/data/transcription_queue_repository.dart';
 import 'package:extracter/src/feature/transcription_queue/models/picked_media.dart';
 import 'package:extracter/src/feature/transcription_queue/models/queue_job.dart';
@@ -39,6 +40,9 @@ final class TranscriptionQueueController extends StateController<TranscriptionQu
 
   final ITranscriptionQueueRepository _repository;
 
+  /// Stops the running job; jobs run one at a time, so one token is enough.
+  CancelToken? _running;
+
   /// Adds files with a snapshot of [settings]; returns the files refused.
   Future<List<QueueRejectedException>> enqueue(List<PickedMedia> media, TranscriptionSettings settings) async {
     final rejected = <QueueRejectedException>[];
@@ -68,7 +72,7 @@ final class TranscriptionQueueController extends StateController<TranscriptionQu
         _repository.discard(job).ignore();
       case QueueJobStatus.running:
         _update(jobId, (j) => j.copyWith(status: QueueJobStatus.cancelling));
-        _repository.cancel(job);
+        _running?.cancel();
       case _:
         break;
     }
@@ -114,17 +118,22 @@ final class TranscriptionQueueController extends StateController<TranscriptionQu
     _update(job.id, (j) => j.copyWith(status: QueueJobStatus.running, permille: () => 0));
     final segments = <TranscriptSegment>[];
     TranscriptionEvent? last;
-    await for (final event in _repository.transcribe(job)) {
-      last = event;
-      switch (event) {
-        case TranscriptionProgress(:final permille, :final durationMs):
-          _update(job.id, (j) => j.copyWith(permille: () => permille, durationMs: () => durationMs ?? j.durationMs));
-        case TranscriptionSegmentAdded(:final segment):
-          segments.add(segment);
-          _update(job.id, (j) => j.copyWith(segments: List.unmodifiable(segments)));
-        case TranscriptionCompleted() || TranscriptionFailed():
-          break;
+    final token = _running = CancelToken();
+    try {
+      await for (final event in _repository.transcribe(job, token)) {
+        last = event;
+        switch (event) {
+          case TranscriptionProgress(:final permille, :final durationMs):
+            _update(job.id, (j) => j.copyWith(permille: () => permille, durationMs: () => durationMs ?? j.durationMs));
+          case TranscriptionSegmentAdded(:final segment):
+            segments.add(segment);
+            _update(job.id, (j) => j.copyWith(segments: List.unmodifiable(segments)));
+          case TranscriptionCompleted() || TranscriptionFailed():
+            break;
+        }
       }
+    } finally {
+      _running = null;
     }
 
     switch (last) {
@@ -175,8 +184,7 @@ final class TranscriptionQueueController extends StateController<TranscriptionQu
 
   @override
   void dispose() {
-    final active = state.active;
-    if (active != null) _repository.cancel(active);
+    _running?.cancel();
     super.dispose();
   }
 }

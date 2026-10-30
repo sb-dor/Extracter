@@ -10,12 +10,12 @@ import 'package:cross_file/cross_file.dart';
 import 'package:extracter/src/common/dependencies/dependencies.dart';
 import 'package:extracter/src/common/model/transcription_settings.dart';
 import 'package:extracter/src/common/model/whisper_model_spec.dart';
+import 'package:extracter/src/common/utils/cancel_token.dart';
 import 'package:extracter/src/feature/transcription_queue/controller/transcription_queue_controller.dart';
 import 'package:extracter/src/feature/transcription_queue/data/transcription_queue_repository.dart';
 import 'package:extracter/src/feature/transcription_queue/models/picked_media.dart';
 import 'package:extracter/src/feature/transcription_queue/models/queue_job.dart';
 import 'package:extracter/src/feature/whisper_model_download/data/whisper_model_download_repository.dart';
-import 'package:extracter/src/feature/whisper_model_download/models/model_download.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -40,7 +40,7 @@ void main() {
         await WhisperModelDownloadRepositoryImpl(
           modelStore: dependencies.modelStore,
           freeDiskBytes: dependencies.native.freeDiskBytes,
-        ).download(spec, DownloadCancelToken()).drain<void>();
+        ).download(spec, CancelToken()).drain<void>();
       }
 
       final queue = TranscriptionQueueController(
