@@ -28,7 +28,7 @@ class AppShellScope extends InheritedWidget {
   bool updateShouldNotify(AppShellScope oldWidget) => false;
 }
 
-/// Desktop: side rail + content. Phone/tablet: content + bottom navigation.
+/// Tablet/desktop: side rail + content. Phone: content + bottom navigation.
 /// Tabs live in an IndexedStack so the queue keeps running while browsing.
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -40,8 +40,12 @@ class AppShell extends StatefulWidget {
 class AppShellState extends State<AppShell> {
   AppTab _tab = AppTab.transcribe;
 
-  /// The transcript History should select next (desktop master-detail).
+  /// The transcript History should select next (list + transcript side by side).
   final ValueNotifier<int?> requestedTranscriptId = ValueNotifier<int?>(null);
+
+  /// Keeps the tabs (and the running queue) alive when a resize or rotation
+  /// swaps the bottom bar for the rail.
+  final GlobalKey _tabsKey = GlobalKey(debugLabel: 'tabs');
 
   void selectTab(AppTab tab) {
     if (_tab != tab) setState(() => _tab = tab);
@@ -84,21 +88,22 @@ class AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final body = IndexedStack(
+      key: _tabsKey,
       index: _tab.index,
       children: const [TranscriptionQueueConfigWidget(), TranscriptsConfigWidget(), WhisperModelsConfigWidget()],
     );
     return AppShellScope(
       state: this,
       child: context.screenSizeMaybeWhen(
-        orElse: () => _MobileShell(tab: _tab, onSelect: selectTab, body: body),
-        desktop: () => _DesktopShell(tab: _tab, onSelect: selectTab, body: body),
+        orElse: () => _RailShell(tab: _tab, onSelect: selectTab, body: body),
+        phone: () => _MobileShell(tab: _tab, onSelect: selectTab, body: body),
       ),
     );
   }
 }
 
-class _DesktopShell extends StatelessWidget {
-  const _DesktopShell({required this.tab, required this.onSelect, required this.body});
+class _RailShell extends StatelessWidget {
+  const _RailShell({required this.tab, required this.onSelect, required this.body});
 
   final AppTab tab;
   final ValueChanged<AppTab> onSelect;
@@ -108,51 +113,54 @@ class _DesktopShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = Localization.of(context);
     return Scaffold(
-      body: Row(
-        children: [
-          DecoratedBox(
-            decoration: const BoxDecoration(
-              border: Border(right: BorderSide(color: AppColors.border)),
-            ),
-            child: NavigationRail(
-              selectedIndex: tab.index,
-              onDestinationSelected: (i) => onSelect(AppTab.values[i]),
-              minWidth: 88,
-              leading: const Padding(
-                padding: EdgeInsets.only(top: 8, bottom: 18),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: AppColors.accent,
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(9),
-                    child: Icon(Icons.graphic_eq, color: Colors.white, size: 22),
-                  ),
-                ),
+      // Tablets draw under the status and navigation bars; desktops have no insets.
+      body: SafeArea(
+        child: Row(
+          children: [
+            DecoratedBox(
+              decoration: const BoxDecoration(
+                border: Border(right: BorderSide(color: AppColors.border)),
               ),
-              trailing: Expanded(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: IconButton(
-                      tooltip: l10n.about,
-                      icon: const Icon(Icons.info_outline, color: AppColors.inkSecondary),
-                      onPressed: () => showAppAbout(context),
+              child: NavigationRail(
+                selectedIndex: tab.index,
+                onDestinationSelected: (i) => onSelect(AppTab.values[i]),
+                minWidth: 88,
+                leading: const Padding(
+                  padding: EdgeInsets.only(top: 8, bottom: 18),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.accent,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(9),
+                      child: Icon(Icons.graphic_eq, color: Colors.white, size: 22),
                     ),
                   ),
                 ),
+                trailing: Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: IconButton(
+                        tooltip: l10n.about,
+                        icon: const Icon(Icons.info_outline, color: AppColors.inkSecondary),
+                        onPressed: () => showAppAbout(context),
+                      ),
+                    ),
+                  ),
+                ),
+                destinations: [
+                  NavigationRailDestination(icon: const Icon(Icons.graphic_eq), label: Text(l10n.tabTranscribe)),
+                  NavigationRailDestination(icon: const Icon(Icons.history), label: Text(l10n.tabHistory)),
+                  NavigationRailDestination(icon: const Icon(Icons.memory), label: Text(l10n.tabModels)),
+                ],
               ),
-              destinations: [
-                NavigationRailDestination(icon: const Icon(Icons.graphic_eq), label: Text(l10n.tabTranscribe)),
-                NavigationRailDestination(icon: const Icon(Icons.history), label: Text(l10n.tabHistory)),
-                NavigationRailDestination(icon: const Icon(Icons.memory), label: Text(l10n.tabModels)),
-              ],
             ),
-          ),
-          Expanded(child: body),
-        ],
+            Expanded(child: body),
+          ],
+        ),
       ),
     );
   }
@@ -186,4 +194,11 @@ class _MobileShell extends StatelessWidget {
       ),
     );
   }
+}
+
+extension AppLayoutExtension on BuildContext {
+  /// History shows the transcript beside the list on desktops and on tablets
+  /// held sideways; otherwise a tap opens the transcript as its own screen.
+  bool get showsTranscriptBesideList =>
+      screenSizeWhen(phone: () => false, tablet: () => orientation == Orientation.landscape, desktop: () => true);
 }

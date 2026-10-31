@@ -256,22 +256,26 @@ class TranscriptionQueueConfigWidgetState extends State<TranscriptionQueueConfig
   Widget build(BuildContext context) => TranscriptionQueueConfigInhWidget(
     state: this,
     child: context.screenSizeMaybeWhen(
-      orElse: () => const TranscriptionQueueMobileWidget(),
-      desktop: () => DropTarget(
-        onDragEntered: (_) => dragging.value = true,
-        onDragExited: (_) => dragging.value = false,
-        onDragDone: (details) {
-          dragging.value = false;
-          addDropped(details.files);
-        },
-        // ⌘O (macOS) / Ctrl+O (Windows, Linux) opens the file picker, as in other desktop apps.
-        child: CallbackShortcuts(
-          bindings: {
-            SingleActivator(LogicalKeyboardKey.keyO, meta: Platform.isMacOS, control: !Platform.isMacOS): pickFiles,
-          },
-          child: const Focus(autofocus: true, child: TranscriptionQueueDesktopWidget()),
-        ),
-      ),
+      phone: () => const TranscriptionQueueMobileWidget(),
+      // Tablets (and big phones sideways): the wide layout, touch first.
+      orElse: () => (Platform.isAndroid || Platform.isIOS)
+          ? const TranscriptionQueueDesktopWidget(touch: true)
+          : DropTarget(
+              onDragEntered: (_) => dragging.value = true,
+              onDragExited: (_) => dragging.value = false,
+              onDragDone: (details) {
+                dragging.value = false;
+                addDropped(details.files);
+              },
+              // ⌘O (macOS) / Ctrl+O (Windows, Linux) opens the file picker, as in other desktop apps.
+              child: CallbackShortcuts(
+                bindings: {
+                  SingleActivator(LogicalKeyboardKey.keyO, meta: Platform.isMacOS, control: !Platform.isMacOS):
+                      pickFiles,
+                },
+                child: const Focus(autofocus: true, child: TranscriptionQueueDesktopWidget()),
+              ),
+            ),
     ),
   );
 }

@@ -1,11 +1,11 @@
 import 'package:control/control.dart';
-import 'package:extracter/src/common/dependencies/dependencies.dart';
 import 'package:extracter/src/common/localization/generated/l10n.dart';
 import 'package:extracter/src/common/widget/app_theme.dart';
 import 'package:extracter/src/common/widget/state_widgets.dart';
 import 'package:extracter/src/feature/transcription_queue/controller/transcription_queue_controller.dart';
 import 'package:extracter/src/feature/transcription_queue/models/queue_job.dart';
 import 'package:extracter/src/feature/transcription_queue/widgets/add_files_button.dart';
+import 'package:extracter/src/feature/transcription_queue/widgets/keep_open_banner.dart';
 import 'package:extracter/src/feature/transcription_queue/widgets/mobile/now_transcribing_card.dart';
 import 'package:extracter/src/feature/transcription_queue/widgets/mobile/queue_settings_chips.dart';
 import 'package:extracter/src/feature/transcription_queue/widgets/mobile/queue_tile.dart';
@@ -60,7 +60,7 @@ class _TranscriptionQueueMobileWidgetState extends State<TranscriptionQueueMobil
                     const SizedBox(height: 12),
                     const QueueSettingsChips(),
                     const SizedBox(height: 12),
-                    if (state.isWorking) ...[const _KeepOpenBanner(), const SizedBox(height: 12)],
+                    if (state.isWorking) ...[const KeepOpenBanner(), const SizedBox(height: 12)],
                     if (active != null) ...[
                       NowTranscribingCard(job: active, since: _scope.activeSince),
                       const SizedBox(height: 12),
@@ -106,39 +106,4 @@ class _TranscriptionQueueMobileWidgetState extends State<TranscriptionQueueMobil
       ],
     ),
   );
-}
-
-/// Android keeps working in the background (foreground service); iOS stops
-/// unfinished files when the user switches apps, so it asks to stay open.
-class _KeepOpenBanner extends StatelessWidget {
-  const _KeepOpenBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    final background = Dependencies.of(context).backgroundWork.keepsRunningInBackground;
-    final l10n = Localization.of(context);
-    final ink = background ? AppColors.accent : const Color(0xFF6E4100);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: background ? AppColors.accentSoft : AppColors.warningSoft,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 10,
-          children: [
-            Icon(background ? Icons.notifications_active_outlined : Icons.info_outline, size: 18, color: ink),
-            Expanded(
-              child: Text(
-                background ? l10n.workInBackground : l10n.keepAppOpen,
-                style: TextStyle(fontSize: 13, height: 1.45, color: ink),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

@@ -1,5 +1,6 @@
 import 'package:extracter/src/common/localization/generated/l10n.dart';
 import 'package:extracter/src/common/utils/format_util.dart';
+import 'package:extracter/src/common/utils/screen_util.dart';
 import 'package:extracter/src/common/widget/app_theme.dart';
 import 'package:extracter/src/feature/whisper_models/widgets/whisper_models_list.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,9 @@ class WhisperModelsDesktopWidget extends StatelessWidget {
     return WhisperModelsList(
       compact: false,
       builder: (context, snapshot, cards) => SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(40, 32, 40, 48),
+        padding: context.screenSize.isTablet
+            ? const EdgeInsets.fromLTRB(24, 24, 24, 32)
+            : const EdgeInsets.fromLTRB(40, 32, 40, 48),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1040),

@@ -1,4 +1,5 @@
 import 'package:extracter/src/common/localization/generated/l10n.dart';
+import 'package:extracter/src/common/utils/screen_util.dart';
 import 'package:extracter/src/common/widget/app_theme.dart';
 import 'package:extracter/src/common/widget/state_widgets.dart';
 import 'package:extracter/src/feature/transcript_detail/widgets/transcript_detail_config_widget.dart';
@@ -27,7 +28,7 @@ class _TranscriptsDesktopWidgetState extends State<TranscriptsDesktopWidget> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          width: 400,
+          width: context.screenSize.isTablet ? 340 : 400,
           decoration: const BoxDecoration(
             color: AppColors.surface,
             border: Border(right: BorderSide(color: AppColors.border)),

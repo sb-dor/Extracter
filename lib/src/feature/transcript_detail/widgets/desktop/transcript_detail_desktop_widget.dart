@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:control/control.dart';
 import 'package:extracter/src/common/localization/generated/l10n.dart';
+import 'package:extracter/src/common/utils/screen_util.dart';
 import 'package:extracter/src/common/utils/transcript_formatters.dart';
 import 'package:extracter/src/common/widget/app_theme.dart';
 import 'package:extracter/src/common/widget/segment_row.dart';
@@ -48,13 +51,14 @@ class _Content extends StatelessWidget {
     final l10n = Localization.of(context);
     final scope = TranscriptDetailConfigInhWidget.of(context);
     final summary = transcript.summary;
+    final side = context.screenSize.isTablet ? 24.0 : 40.0;
     return TranscriptExportConfigWidget(
       sourceName: summary.sourceName,
       segments: transcript.segments,
       builder: (context) => CustomScrollView(
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(40, 28, 40, 20),
+            padding: EdgeInsets.fromLTRB(side, 28, side, 20),
             sliver: SliverToBoxAdapter(
               child: Wrap(
                 alignment: WrapAlignment.spaceBetween,
@@ -98,7 +102,7 @@ class _Content extends StatelessWidget {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(40, 0, 40, 48),
+            padding: EdgeInsets.fromLTRB(side, 0, side, 48),
             sliver: SliverToBoxAdapter(
               child: Card(
                 child: Padding(
@@ -128,6 +132,8 @@ class _SaveAsGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = Localization.of(context);
     final export = TranscriptExportConfigInhWidget.of(context);
+    // Android and iOS hand the file to the share sheet instead of a save dialog.
+    final share = Platform.isAndroid || Platform.isIOS;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -142,8 +148,11 @@ class _SaveAsGroup extends StatelessWidget {
             child: Row(
               spacing: 6,
               children: [
-                const Icon(Icons.download, size: 16, color: AppColors.inkSecondary),
-                Text(l10n.saveAs, style: const TextStyle(fontSize: 14, color: AppColors.inkSecondary)),
+                Icon(share ? Icons.ios_share : Icons.download, size: 16, color: AppColors.inkSecondary),
+                Text(
+                  share ? l10n.shareAs : l10n.saveAs,
+                  style: const TextStyle(fontSize: 14, color: AppColors.inkSecondary),
+                ),
               ],
             ),
           ),
@@ -152,18 +161,26 @@ class _SaveAsGroup extends StatelessWidget {
               decoration: const BoxDecoration(
                 border: Border(left: BorderSide(color: AppColors.border)),
               ),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.ink,
-                  shape: const RoundedRectangleBorder(),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
+              // Builder: each button is the share sheet's anchor on iPad.
+              child: Builder(
+                builder: (context) => TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.ink,
+                    shape: const RoundedRectangleBorder(),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  onPressed: () => export.export(format, shareOrigin: _originOf(context)),
+                  child: Text(format.extension.toUpperCase()),
                 ),
-                onPressed: () => export.export(format),
-                child: Text(format.extension.toUpperCase()),
               ),
             ),
         ],
       ),
     );
+  }
+
+  static Rect? _originOf(BuildContext context) {
+    final box = context.findRenderObject() as RenderBox?;
+    return box == null ? null : box.localToGlobal(Offset.zero) & box.size;
   }
 }

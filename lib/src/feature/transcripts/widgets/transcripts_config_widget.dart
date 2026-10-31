@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:extracter/src/common/dependencies/dependencies.dart';
-import 'package:extracter/src/common/utils/screen_util.dart';
 import 'package:extracter/src/common/widget/app_shell.dart';
 import 'package:extracter/src/feature/transcript_detail/widgets/transcript_detail_config_widget.dart';
 import 'package:extracter/src/feature/transcripts/controller/transcripts_controller.dart';
@@ -76,11 +75,10 @@ class TranscriptsConfigWidgetState extends State<TranscriptsConfigWidget> {
     transcriptsController.paginate(query: _loadedQuery);
   }
 
-  /// Desktop selects in place; phone/tablet pushes the transcript screen.
-  void open(int id) => context.screenSizeMaybeWhen(
-    orElse: () => TranscriptDetailConfigWidget.open(context, transcriptId: id),
-    desktop: () => transcriptsDataController.select(id),
-  );
+  /// Selects in place beside the list; otherwise pushes the transcript screen.
+  void open(int id) => context.showsTranscriptBesideList
+      ? transcriptsDataController.select(id)
+      : TranscriptDetailConfigWidget.open(context, transcriptId: id);
 
   void _onDataChanged() {
     if (transcriptsDataController.query == _loadedQuery) return;
@@ -100,9 +98,6 @@ class TranscriptsConfigWidgetState extends State<TranscriptsConfigWidget> {
   @override
   Widget build(BuildContext context) => TranscriptsConfigInhWidget(
     state: this,
-    child: context.screenSizeMaybeWhen(
-      orElse: () => const TranscriptsMobileWidget(),
-      desktop: () => const TranscriptsDesktopWidget(),
-    ),
+    child: context.showsTranscriptBesideList ? const TranscriptsDesktopWidget() : const TranscriptsMobileWidget(),
   );
 }

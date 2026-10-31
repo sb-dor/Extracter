@@ -31,16 +31,16 @@ class TranscriptDetailConfigInhWidget extends InheritedWidget {
 class TranscriptDetailConfigWidget extends StatefulWidget {
   const TranscriptDetailConfigWidget({required this.transcriptId, this.onDeleted, super.key});
 
-  /// Mobile: pushes the transcript screen. Desktop: selects it in History.
+  /// Selects it in History when History shows transcripts beside the list;
+  /// otherwise pushes the transcript screen.
   static Future<void> open(BuildContext context, {required int transcriptId}) async {
-    context.screenSizeMaybeWhen(
-      orElse: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(builder: (context) => TranscriptDetailConfigWidget(transcriptId: transcriptId)),
-        );
-      },
-      desktop: () => AppShellScope.of(context).showTranscript(transcriptId),
+    if (context.showsTranscriptBesideList) {
+      AppShellScope.of(context).showTranscript(transcriptId);
+      return;
+    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (context) => TranscriptDetailConfigWidget(transcriptId: transcriptId)),
     );
   }
 

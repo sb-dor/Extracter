@@ -80,8 +80,8 @@ class WhisperModelsConfigWidgetState extends State<WhisperModelsConfigWidget> {
   Widget build(BuildContext context) => WhisperModelsConfigInhWidget(
     state: this,
     child: context.screenSizeMaybeWhen(
-      orElse: () => const WhisperModelsMobileWidget(),
-      desktop: () => const WhisperModelsDesktopWidget(),
+      orElse: () => const WhisperModelsDesktopWidget(),
+      phone: () => const WhisperModelsMobileWidget(),
     ),
   );
 }

@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 
 /// The dashed "Drop audio or video files here" area. The drop target itself
 /// covers the whole window (config widget); this highlights while dragging.
+/// With [touch] (tablets) it invites choosing files instead.
 class QueueDropZone extends StatefulWidget {
-  const QueueDropZone({super.key});
+  const QueueDropZone({this.touch = false, super.key});
+
+  final bool touch;
 
   @override
   State<QueueDropZone> createState() => _QueueDropZoneState();
@@ -39,7 +42,10 @@ class _QueueDropZoneState extends State<QueueDropZone> {
                   child: Icon(Icons.upload_outlined, color: AppColors.accent, size: 26),
                 ),
               ),
-              Text(l10n.dropFilesHere, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+              Text(
+                widget.touch ? l10n.addFilesHere : l10n.dropFilesHere,
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+              ),
               Text(
                 l10n.supportedFormats,
                 textAlign: TextAlign.center,
